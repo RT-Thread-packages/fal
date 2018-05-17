@@ -30,14 +30,10 @@
 #define FAL_PART_MAGIC_WROD         0x45503130
 
 /**
- * FAL partition table has defined on 'fal_cfg.h',
- * else will get partition table on a specified location on flash partition
+ * FAL partition table config has defined on 'fal_cfg.h'.
+ * When this option is disable, it will auto find the partition table on a specified location in flash partition.
  */
-#ifndef FAL_PART_HAS_TABLE_CFG
-#define FAL_PART_HAS_TABLE_CFG         1
-#endif
-
-#if FAL_PART_HAS_TABLE_CFG
+#ifdef FAL_PART_HAS_TABLE_CFG
 
 /* check partition table definition */
 #if !defined(FAL_PART_TABLE)
@@ -90,7 +86,7 @@ int fal_partition_init(void)
         return partition_table_len;
     }
 
-#if FAL_PART_HAS_TABLE_CFG
+#ifdef FAL_PART_HAS_TABLE_CFG
     partition_table = &partition_table_def[0];
     partition_table_len = sizeof(partition_table_def) / sizeof(partition_table_def[0]);
 #else
@@ -179,7 +175,7 @@ int fal_partition_init(void)
 
 _exit:
 
-#if !FAL_PART_HAS_TABLE_CFG
+#ifndef FAL_PART_HAS_TABLE_CFG
     if (new_part)
     {
         FAL_FREE(new_part);
