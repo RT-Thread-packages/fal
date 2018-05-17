@@ -57,7 +57,6 @@
     #error not supported tool chain
 #endif /* __CC_ARM */
 USED static const struct fal_partition partition_table_def[] SECTION("FalPart") = FAL_PART_TABLE;
-//static const struct fal_partition partition_table_def[] = FAL_PART_TABLE;
 static const struct fal_partition *partition_table = NULL;
 
 #else /* FAL_PART_HAS_TABLE_CFG */
@@ -71,8 +70,6 @@ static const struct fal_partition *partition_table = NULL;
 #error "You must defined FAL_PART_TABLE_END_OFFSET on 'fal_cfg.h'"
 #endif
 
-///* partition table end offset address */
-//#define PART_TABLE_END_OFFSET          (FAL_BL_PART_OFFSET + FAL_BL_PART_LEN - sizeof(struct fal_rbl_hdr))
 static struct fal_partition *partition_table = NULL;
 #endif /* FAL_PART_HAS_TABLE_CFG */
 

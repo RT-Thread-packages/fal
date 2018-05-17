@@ -45,6 +45,10 @@
 #define FAL_FREE                       free
 #endif
 
+#ifndef FAL_DEBUG
+#define FAL_DEBUG                      0
+#endif
+
 #if FAL_DEBUG
 #ifdef assert
 #undef assert
