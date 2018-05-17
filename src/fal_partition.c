@@ -92,7 +92,7 @@ int fal_partition_init(void)
 #else
     /* load partition table from the end address FAL_PART_TABLE_END_OFFSET, error return 0 */
     size_t table_num = 0, table_item_size = 0;
-    fal_part_t new_part = NULL;
+    fal_partition_t new_part = NULL;
     const struct fal_flash_dev *flash_dev = NULL;
 
     flash_dev = fal_flash_device_find(FAL_PART_TABLE_FLASH_DEV_NAME);
@@ -103,7 +103,7 @@ int fal_partition_init(void)
     }
 
     table_item_size = sizeof(struct fal_partition);
-    new_part = (fal_part_t)FAL_MALLOC(table_item_size);
+    new_part = (fal_partition_t)FAL_MALLOC(table_item_size);
     if (new_part == NULL)
     {
         log_e("Initialize failed! No memory for table buffer.");
@@ -126,7 +126,7 @@ int fal_partition_init(void)
             break;
         }
 
-        partition_table = (fal_part_t) FAL_REALLOC(partition_table, table_item_size * (table_num + 1));
+        partition_table = (fal_partition_t) FAL_REALLOC(partition_table, table_item_size * (table_num + 1));
         if (partition_table == NULL)
         {
             log_e("Initialize failed! No memory for partition table");
@@ -150,22 +150,21 @@ int fal_partition_init(void)
 #endif /* FAL_PART_HAS_TABLE_CFG */
 
     /* check the partition table device exists */
-    const struct fal_flash_dev *fl_dev = NULL;
 
     for (i = 0; i < partition_table_len; i++)
     {
-        fl_dev = fal_flash_device_find(partition_table[i].flash_name);
-        if (fl_dev == NULL)
+        flash_dev = fal_flash_device_find(partition_table[i].flash_name);
+        if (flash_dev == NULL)
         {
             log_e("Initialize failed! Don't found the flash device(%s).", partition_table[i].flash_name);
             partition_table_len = 0;
             goto _exit;
         }
 
-        if (partition_table[i].offset >= fl_dev->len)
+        if (partition_table[i].offset >= flash_dev->len)
         {
             log_e("Initialize failed! Partition(%s) offset address(%ld) out of flash bound(%ld).",
-                    partition_table[i].name, partition_table[i].offset, fl_dev->len);
+                    partition_table[i].name, partition_table[i].offset, flash_dev->len);
             partition_table_len = 0;
             goto _exit;
         }
