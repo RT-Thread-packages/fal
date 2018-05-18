@@ -133,8 +133,7 @@ int fal_partition_init(void)
             table_num = 0;
             break;
         }
-
-        memcpy(partition_table + table_num * table_item_size, new_part, table_item_size);
+        memcpy((char *)partition_table + table_num * table_item_size, new_part, table_item_size);
 
         table_num++;
     } while (1);
