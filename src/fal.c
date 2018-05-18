@@ -29,6 +29,7 @@
  * It will initialize all flash device and all flash partition.
  *
  * @return result
+ *         >= 0: partitions total number
  */
 int fal_init(void)
 {

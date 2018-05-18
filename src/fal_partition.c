@@ -80,6 +80,7 @@ static size_t partition_table_len = 0;
 int fal_partition_init(void)
 {
     size_t i;
+    const struct fal_flash_dev *flash_dev = NULL;
 
     if (init_ok)
     {
@@ -93,7 +94,6 @@ int fal_partition_init(void)
     /* load partition table from the end address FAL_PART_TABLE_END_OFFSET, error return 0 */
     size_t table_num = 0, table_item_size = 0;
     fal_partition_t new_part = NULL;
-    const struct fal_flash_dev *flash_dev = NULL;
 
     flash_dev = fal_flash_device_find(FAL_PART_TABLE_FLASH_DEV_NAME);
     if (flash_dev == NULL)
