@@ -163,7 +163,7 @@ int fal_partition_init(void)
 
         if (partition_table[i].offset >= flash_dev->len)
         {
-            log_e("Initialize failed! Partition(%s) offset address(%ld) out of flash bound(%ld).",
+            log_e("Initialize failed! Partition(%s) offset address(%ld) out of flash bound(%d).",
                     partition_table[i].name, partition_table[i].offset, flash_dev->len);
             partition_table_len = 0;
             goto _exit;
