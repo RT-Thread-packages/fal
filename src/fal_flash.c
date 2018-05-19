@@ -58,7 +58,8 @@ int fal_flash_init(void)
         {
             device_table[i]->ops.init();
         }
-        log_i("Flash device(%s) initialized finish.", device_table[i]->name);
+        log_d("Flash device | %*.*s | addr: 0x%08lx | len: %d | initialized finish.", FAL_DEV_NAME_MAX, FAL_DEV_NAME_MAX,
+                device_table[i]->name, device_table[i]->addr, device_table[i]->len);
     }
 
     init_ok = 1;

@@ -133,13 +133,19 @@ int fal_partition_init(void)
             table_num = 0;
             break;
         }
-        memcpy((char *)partition_table + table_num * table_item_size, new_part, table_item_size);
+
+        memcpy(partition_table + table_num, new_part, table_item_size);
+        log_d("Find a partition | %*.*s | flash_dev: %*.*s | offset: 0x%08lx | len: 0x%08x | finish", FAL_DEV_NAME_MAX,
+                FAL_DEV_NAME_MAX, new_part->name, FAL_DEV_NAME_MAX, FAL_DEV_NAME_MAX, new_part->flash_name,
+                new_part->offset, new_part->len);
 
         table_num++;
     } while (1);
 
     if (table_num == 0)
     {
+        log_e("Partition table no found on flash: %s (len: %d) from offset: 0x%08x.", FAL_PART_TABLE_FLASH_DEV_NAME,
+                FAL_DEV_NAME_MAX, FAL_PART_TABLE_END_OFFSET);
         goto _exit;
     }
     else

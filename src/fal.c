@@ -38,15 +38,20 @@ int fal_init(void)
     result = fal_flash_init();
 
     if (result < 0) {
-        return result;
+        goto __exit;
     }
 
     /* initialize all flash partition on FAL partition table */
     result = fal_partition_init();
 
-    if (result >= 0) {
+__exit:
+
+    if (result > 0)
+    {
         log_i("RT-Thread Flash Abstraction Layer (V%s) initialize success.", FAL_SW_VERSION);
-    } else {
+    }
+    else
+    {
         log_e("RT-Thread Flash Abstraction Layer (V%s) initialize failed.", FAL_SW_VERSION);
     }
 
