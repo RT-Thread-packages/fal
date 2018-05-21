@@ -254,7 +254,7 @@ const struct fal_partition *fal_get_partition_table(size_t *len)
 /**
  * read data from partition
  *
- * @param part parttion
+ * @param part partition
  * @param addr relative address for partition
  * @param buf read buffer
  * @param size read size
@@ -294,7 +294,7 @@ int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t 
 /**
  * write data to partition
  *
- * @param part parttion
+ * @param part partition
  * @param addr relative address for partition
  * @param buf write buffer
  * @param size write size
@@ -334,7 +334,7 @@ int fal_partition_write(const struct fal_partition *part, uint32_t addr, const u
 /**
  * erase partition data
  *
- * @param part parttion
+ * @param part partition
  * @param addr relative address for partition
  * @param size erase size
  *
@@ -372,7 +372,7 @@ int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t 
 /**
  * erase partition all data
  *
- * @param part parttion
+ * @param part partition
  *
  * @return -1: error
  */
