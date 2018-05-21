@@ -57,3 +57,224 @@ __exit:
 
     return result;
 }
+
+#if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
+
+#include <finsh.h>
+
+static void fal(uint8_t argc, char **argv) {
+
+#define CMD_PROBE_INDEX               0
+#define CMD_READ_INDEX                1
+#define CMD_WRITE_INDEX               2
+#define CMD_ERASE_INDEX               3
+
+    int result;
+    static const struct fal_flash_dev *flash_dev = NULL;
+    static const struct fal_partition *part_dev = NULL;
+    size_t i = 0;
+
+    const char* help_info[] =
+    {
+            [CMD_PROBE_INDEX]     = "fal probe [dev_name|part_name]   - probe flash device or partition by given name",
+            [CMD_READ_INDEX]      = "fal read addr size               - read 'size' bytes starting at 'addr'",
+            [CMD_WRITE_INDEX]     = "fal write addr data1 ... dataN   - write some bytes 'data' starting at 'addr'",
+            [CMD_ERASE_INDEX]     = "fal erase addr size              - erase 'size' bytes starting at 'addr'",
+    };
+
+    if (argc < 2)
+    {
+        rt_kprintf("Usage:\n");
+        for (i = 0; i < sizeof(help_info) / sizeof(char*); i++)
+        {
+            rt_kprintf("%s\n", help_info[i]);
+        }
+        rt_kprintf("\n");
+    }
+    else
+    {
+        const char *operator = argv[1];
+        uint32_t addr, size;
+
+        if (!strcmp(operator, "probe"))
+        {
+            if (argc >= 3)
+            {
+                char *dev_name = argv[2];
+                if ((flash_dev = fal_flash_device_find(dev_name)) != NULL)
+                {
+                    part_dev = NULL;
+                }
+                else if ((part_dev = fal_partition_find(dev_name)) != NULL)
+                {
+                    flash_dev = NULL;
+                }
+                else
+                {
+                    rt_kprintf("Device %s NOT found. Probe failed.\n", dev_name);
+                    flash_dev = NULL;
+                    part_dev = NULL;
+                }
+            }
+
+            if (flash_dev)
+            {
+                rt_kprintf("Probed a flash device | %s | addr: %ld | len: %d |.\n", flash_dev->name,
+                        flash_dev->addr, flash_dev->len);
+            }
+            else if (part_dev)
+            {
+                rt_kprintf("Probed a flash partition | %s | flash_dev: %s | offset: %ld | len: %d |.\n",
+                        part_dev->name, part_dev->flash_name, part_dev->offset, part_dev->len);
+            }
+            else
+            {
+                rt_kprintf("No flash device or partition was probed.\n");
+                rt_kprintf("Usage: %s.\n", help_info[CMD_PROBE_INDEX]);
+                fal_show_part_table();
+            }
+        }
+        else
+        {
+            if (!flash_dev && !part_dev)
+            {
+                rt_kprintf("No flash device or partition was probed. Please run 'fal probe'.\n");
+                return;
+            }
+            if (!rt_strcmp(operator, "read"))
+            {
+                if (argc < 4)
+                {
+                    rt_kprintf("Usage: %s.\n", help_info[CMD_READ_INDEX]);
+                    return;
+                }
+                else
+                {
+                    addr = strtol(argv[2], NULL, 0);
+                    size = strtol(argv[3], NULL, 0);
+                    uint8_t *data = rt_malloc(size);
+                    if (data)
+                    {
+                        if (flash_dev)
+                        {
+                            result = flash_dev->ops.read(addr, data, size);
+                        }
+                        else if (part_dev)
+                        {
+                            result = fal_partition_read(part_dev, addr, data, size);
+                        }
+                        if (result >= 0)
+                        {
+                            rt_kprintf("Read data success. Start from 0x%08X, size is %ld. The data is:\n", addr,
+                                    size);
+                            rt_kprintf("Offset (h) 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
+                            for (i = 0; i < size; i++)
+                            {
+                                if (i % 16 == 0)
+                                {
+                                    rt_kprintf("[%08X] ", addr + i);
+                                }
+                                rt_kprintf("%02X ", data[i]);
+                                if (((i + 1) % 16 == 0) || i == size - 1)
+                                {
+                                    rt_kprintf("\n");
+                                }
+                            }
+                            rt_kprintf("\n");
+                        }
+                        rt_free(data);
+                    }
+                    else
+                    {
+                        rt_kprintf("Low memory!\n");
+                    }
+                }
+            }
+            else if (!strcmp(operator, "write"))
+            {
+                if (argc < 4)
+                {
+                    rt_kprintf("Usage: %s.\n", help_info[CMD_WRITE_INDEX]);
+                    return;
+                }
+                else
+                {
+                    addr = strtol(argv[2], NULL, 0);
+                    size = argc - 3;
+                    uint8_t *data = rt_malloc(size);
+                    if (data)
+                    {
+                        for (i = 0; i < size; i++)
+                        {
+                            data[i] = strtol(argv[3 + i], NULL, 0);
+                        }
+                        if (flash_dev)
+                        {
+                            result = flash_dev->ops.write(addr, data, size);
+                        }
+                        else if (part_dev)
+                        {
+                            result = fal_partition_write(part_dev, addr, data, size);
+                        }
+                        if (result >= 0)
+                        {
+                            rt_kprintf("Write data success. Start from 0x%08X, size is %ld.\n", addr, size);
+                            rt_kprintf("Write data: ");
+                            for (i = 0; i < size; i++)
+                            {
+                                rt_kprintf("%d ", data[i]);
+                            }
+                            rt_kprintf(".\n");
+                        }
+                        rt_free(data);
+                    }
+                    else
+                    {
+                        rt_kprintf("Low memory!\n");
+                    }
+                }
+            }
+            else if (!rt_strcmp(operator, "erase"))
+            {
+                if (argc < 4)
+                {
+                    rt_kprintf("Usage: %s.\n", help_info[CMD_ERASE_INDEX]);
+                    return;
+                }
+                else
+                {
+                    addr = strtol(argv[2], NULL, 0);
+                    size = strtol(argv[3], NULL, 0);
+                    if (flash_dev)
+                    {
+                        result = flash_dev->ops.erase(addr, size);
+                    }
+                    else if (part_dev)
+                    {
+                        result = fal_partition_erase(part_dev, addr, size);
+                    }
+                    if (result >= 0)
+                    {
+                        rt_kprintf("Erase data success. Start from 0x%08X, size is %ld.\n", addr, size);
+                    }
+                }
+            }
+            else
+            {
+                rt_kprintf("Usage:\n");
+                for (i = 0; i < sizeof(help_info) / sizeof(char*); i++)
+                {
+                    rt_kprintf("%s\n", help_info[i]);
+                }
+                rt_kprintf("\n");
+                return;
+            }
+            if (result < 0) {
+                rt_kprintf("This operate has an error. Error code: %d.\n", result);
+            }
+        }
+    }
+}
+MSH_CMD_EXPORT(fal, FAL (Flash Abstraction Layer) operate.);
+
+#endif /* defined(RT_USING_FINSH) && defined(FINSH_USING_MSH) */
