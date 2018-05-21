@@ -72,7 +72,7 @@ static struct fal_partition *partition_table = NULL;
 static uint8_t init_ok = 0;
 static size_t partition_table_len = 0;
 
-static void show_part_table(void)
+void fal_show_part_table(void)
 {
     char *item1 = "name", *item2 = "flash_dev";
     size_t i, part_name_max = strlen(item1), flash_dev_name_max = strlen(item2);
@@ -211,7 +211,7 @@ int fal_partition_init(void)
 _exit:
 
 #ifdef FAL_DEBUG
-    show_part_table();
+    fal_show_part_table();
 #endif
 
 #ifndef FAL_PART_HAS_TABLE_CFG

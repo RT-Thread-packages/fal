@@ -50,5 +50,6 @@ int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t 
 int fal_partition_write(const struct fal_partition *part, uint32_t addr, const uint8_t *buf, size_t size);
 int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t size);
 int fal_partition_erase_all(const struct fal_partition *part);
+void fal_show_part_table(void);
 
 #endif /* _FAL_H_ */
