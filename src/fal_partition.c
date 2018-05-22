@@ -28,6 +28,8 @@
 
 /* partition magic word */
 #define FAL_PART_MAGIC_WROD         0x45503130
+#define FAL_PART_MAGIC_WROD_H       0x4550L
+#define FAL_PART_MAGIC_WROD_L       0x3130L
 
 /**
  * FAL partition table config has defined on 'fal_cfg.h'.
@@ -115,6 +117,9 @@ int fal_partition_init(void)
 {
     size_t i;
     const struct fal_flash_dev *flash_dev = NULL;
+    uint8_t part_table_find_ok = 0;
+    long part_table_offset = FAL_PART_TABLE_END_OFFSET;
+    uint32_t read_magic_word;
 
     if (init_ok)
     {
@@ -132,7 +137,14 @@ int fal_partition_init(void)
     flash_dev = fal_flash_device_find(FAL_PART_TABLE_FLASH_DEV_NAME);
     if (flash_dev == NULL)
     {
-        log_e("Initialize failed! Don't found flash device(%s).", FAL_PART_TABLE_FLASH_DEV_NAME);
+        log_e("Initialize failed! Flash device (%s) NOT found.", FAL_PART_TABLE_FLASH_DEV_NAME);
+        goto _exit;
+    }
+
+    /* check partition table offset address */
+    if (part_table_offset < 0 || part_table_offset >= (long) flash_dev->len)
+    {
+        log_e("Setting partition table end offset address(%ld) out of flash bound(<%d).", part_table_offset, flash_dev->len);
         goto _exit;
     }
 
@@ -144,18 +156,37 @@ int fal_partition_init(void)
         goto _exit;
     }
 
-    do
+    /* find partition table location */
+    while (part_table_offset >= 0)
+    {
+        if (flash_dev->ops.read(part_table_offset, (uint8_t *) &read_magic_word, sizeof(read_magic_word)) > 0)
+        {
+            if (read_magic_word == ((FAL_PART_MAGIC_WROD_H << 16) + FAL_PART_MAGIC_WROD_L))
+            {
+                part_table_find_ok = 1;
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
+        part_table_offset --;
+    }
+
+    /* load partition table */
+    while (part_table_find_ok)
     {
         memset(new_part, 0x00, table_num);
-        if (flash_dev->ops.read(FAL_PART_TABLE_END_OFFSET - table_item_size * (table_num + 1), (uint8_t *) new_part,
+        if (flash_dev->ops.read(part_table_offset - table_item_size * (table_num), (uint8_t *) new_part,
                 table_item_size) < 0)
         {
-            log_e("Initialize failed! Bootloader flash device read error!");
+            log_e("Initialize failed! Flash device (%s) read error!", flash_dev->name);
             table_num = 0;
             break;
         }
 
-        if (new_part->magic_word != FAL_PART_MAGIC_WROD)
+        if (new_part->magic_word != ((FAL_PART_MAGIC_WROD_H << 16) + FAL_PART_MAGIC_WROD_L))
         {
             break;
         }
@@ -171,11 +202,11 @@ int fal_partition_init(void)
         memcpy(partition_table + table_num, new_part, table_item_size);
 
         table_num++;
-    } while (1);
+    };
 
     if (table_num == 0)
     {
-        log_e("Partition table no found on flash: %s (len: %d) from offset: 0x%08x.", FAL_PART_TABLE_FLASH_DEV_NAME,
+        log_e("Partition table NOT found on flash: %s (len: %d) from offset: 0x%08x.", FAL_PART_TABLE_FLASH_DEV_NAME,
                 FAL_DEV_NAME_MAX, FAL_PART_TABLE_END_OFFSET);
         goto _exit;
     }
@@ -197,9 +228,9 @@ int fal_partition_init(void)
             goto _exit;
         }
 
-        if (partition_table[i].offset >= flash_dev->len)
+        if (partition_table[i].offset >= (long)flash_dev->len)
         {
-            log_e("Initialize failed! Partition(%s) offset address(%ld) out of flash bound(%d).",
+            log_e("Initialize failed! Partition(%s) offset address(%ld) out of flash bound(<%d).",
                     partition_table[i].name, partition_table[i].offset, flash_dev->len);
             partition_table_len = 0;
             goto _exit;
