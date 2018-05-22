@@ -71,6 +71,7 @@ static void fal(uint8_t argc, char **argv) {
 #define CMD_READ_INDEX                1
 #define CMD_WRITE_INDEX               2
 #define CMD_ERASE_INDEX               3
+#define CMD_BENCH_INDEX               4
 
     int result;
     static const struct fal_flash_dev *flash_dev = NULL;
@@ -83,6 +84,7 @@ static void fal(uint8_t argc, char **argv) {
             [CMD_READ_INDEX]      = "fal read addr size               - read 'size' bytes starting at 'addr'",
             [CMD_WRITE_INDEX]     = "fal write addr data1 ... dataN   - write some bytes 'data' starting at 'addr'",
             [CMD_ERASE_INDEX]     = "fal erase addr size              - erase 'size' bytes starting at 'addr'",
+            [CMD_BENCH_INDEX]     = "fal bench <blk_size>             - benchmark test with per block size",
     };
 
     if (argc < 2)
@@ -261,6 +263,134 @@ static void fal(uint8_t argc, char **argv) {
                         rt_kprintf("Erase data success. Start from 0x%08X, size is %ld.\n", addr, size);
                     }
                 }
+            }
+            else if (!strcmp(operator, "bench"))
+            {
+                if (argc < 3)
+                {
+                    rt_kprintf("Usage: %s.\n", help_info[CMD_BENCH_INDEX]);
+                    return;
+                }
+                else if ((argc > 3 && strcmp(argv[3], "yes")) || argc < 4)
+                {
+                    rt_kprintf("DANGER: It will erase full chip or partition! Please run 'sf bench %d yes'.\n", strtol(argv[2], NULL, 0));
+                    return;
+                }
+                /* full chip benchmark test */
+                uint32_t start_time, time_cast;
+                size_t write_size = strtol(argv[2], NULL, 0), read_size = strtol(argv[2], NULL, 0), cur_read_size;
+                uint8_t *write_data = (uint8_t *)rt_malloc(write_size), *read_data = (uint8_t *)rt_malloc(read_size);
+
+                if (write_data && read_data)
+                {
+                    memset(write_data, 0x55, write_size);
+                    if (flash_dev)
+                    {
+                        size = flash_dev->len;
+                    }
+                    else if (part_dev)
+                    {
+                        size = part_dev->len;
+                    }
+                    /* benchmark testing */
+                    rt_kprintf("Erasing %ld bytes data, waiting...\n", size);
+                    start_time = rt_tick_get();
+                    if (flash_dev)
+                    {
+                        result = flash_dev->ops.erase(0, size);
+                    }
+                    else if (part_dev)
+                    {
+                        result = fal_partition_erase(part_dev, 0, size);
+                    }
+                    if (result >= 0)
+                    {
+                        time_cast = rt_tick_get() - start_time;
+                        rt_kprintf("Erase benchmark success, total time: %d.%03dS.\n", time_cast / RT_TICK_PER_SECOND,
+                                time_cast % RT_TICK_PER_SECOND / ((RT_TICK_PER_SECOND * 1 + 999) / 1000));
+                    }
+                    else
+                    {
+                        rt_kprintf("Erase benchmark has an error. Error code: %d.\n", result);
+                    }
+                    /* write test */
+                    rt_kprintf("Writing %ld bytes data, waiting...\n", size);
+                    start_time = rt_tick_get();
+                    for (i = 0; i < size; i += write_size)
+                    {
+                        if (flash_dev)
+                        {
+                            result = flash_dev->ops.write(i, write_data, write_size);
+                        }
+                        else if (part_dev)
+                        {
+                            result = fal_partition_write(part_dev, i, write_data, write_size);
+                        }
+                        if (result < 0)
+                        {
+                            break;
+                        }
+                    }
+                    if (result >= 0)
+                    {
+                        time_cast = rt_tick_get() - start_time;
+                        rt_kprintf("Write benchmark success, total time: %d.%03dS.\n", time_cast / RT_TICK_PER_SECOND,
+                                time_cast % RT_TICK_PER_SECOND / ((RT_TICK_PER_SECOND * 1 + 999) / 1000));
+                    }
+                    else
+                    {
+                        rt_kprintf("Write benchmark has an error. Error code: %d.\n", result);
+                    }
+                    /* read test */
+                    rt_kprintf("Reading %ld bytes data, waiting...\n", size);
+                    start_time = rt_tick_get();
+                    for (i = 0; i < size; i += read_size)
+                    {
+                        if (i + read_size <= size)
+                        {
+                            cur_read_size = read_size;
+                        }
+                        else
+                        {
+                            cur_read_size = size - i;
+                        }
+                        if (flash_dev)
+                        {
+                            result = flash_dev->ops.read(i, read_data, cur_read_size);
+                        }
+                        else if (part_dev)
+                        {
+                            result = fal_partition_read(part_dev, i, read_data, cur_read_size);
+                        }
+                        /* data check */
+                        if (memcmp(write_data, read_data, cur_read_size))
+                        {
+                            result = -RT_ERROR;
+                            rt_kprintf("Data check ERROR! Please check you flash by other command.\n");
+                        }
+                        /* has an error */
+                        if (result < 0)
+                        {
+                            break;
+                        }
+                    }
+                    if (result >= 0)
+                    {
+                        time_cast = rt_tick_get() - start_time;
+                        rt_kprintf("Read benchmark success, total time: %d.%03dS.\n", time_cast / RT_TICK_PER_SECOND,
+                                time_cast % RT_TICK_PER_SECOND / ((RT_TICK_PER_SECOND * 1 + 999) / 1000));
+                    }
+                    else
+                    {
+                        rt_kprintf("Read benchmark has an error. Error code: %d.\n", result);
+                    }
+                }
+                else
+                {
+                    rt_kprintf("Low memory!\n");
+                }
+                rt_free(write_data);
+                rt_free(read_data);
             }
             else
             {
