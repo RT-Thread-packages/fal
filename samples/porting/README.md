@@ -4,7 +4,7 @@
 
 ## 1、Flash 设备
 
-在定义 Flash 设备表前，需要先定义 Flash 设备，参考 `fal_flash_sfud_port.c` （基于 [SFUD](https://github.com/armink/SFUD) 万能 SPI Flash 驱动的 Flash 设备）与 `fal_flash_stm32f2_port.c` （STM32F2 片内 Flash）这两个文件。这里简介下 `fal_flash_stm32f2_port.c` 里的代码实现。
+在定义 Flash 设备表前，需要先定义 Flash 设备，参考 [`fal_flash_sfud_port.c`](fal_flash_sfud_port.c) （基于 [SFUD](https://github.com/armink/SFUD) 万能 SPI Flash 驱动的 Flash 设备）与 [`fal_flash_stm32f2_port.c`](fal_flash_stm32f2_port.c) （STM32F2 片内 Flash）这两个文件。这里简介下 `fal_flash_stm32f2_port.c` 里的代码实现。
 
 ### 1.1 定义 Flash 设备
 

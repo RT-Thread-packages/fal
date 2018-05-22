@@ -237,5 +237,5 @@ msh />
 
 ## 5、联系方式
 
-* 维护：armink
+* 维护：[armink](https://github.com/armink)
 * 主页：https://github.com/RT-Thread-packages/fal
