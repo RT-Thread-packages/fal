@@ -2,7 +2,13 @@
 
 ## 1、介绍
 
-> 说明：你需要在这里对项目进行简单的介绍，描述项目背景，当前现状、功能特点等等……
+FAL (Flash Abstraction Layer) Flash 抽象层，是对 Flash 及基于 Flash 的分区进行管理、操作的抽象层，对上层统一了 Flash 及 分区操作的 API ，并具有以下特性：
+
+- 支持静态可配置的分区表，并可关联多个 Flash 设备；
+- 分区表支持 **自动装载** 。避免在多固件项目，分区表被多次定义的问题；
+- 代码精简，对操作系统 **无依赖** ，可运行于裸机平台，比如对资源有一定要求的 Bootloader；
+- 统一的操作接口。保证了文件系统、OTA、NVM 等对 Flash 有一定依赖的组件，底层 Flash 驱动的可重用性；
+- 自带基于 Finsh/MSH 的测试命令，可以通过 Shell 按字节寻址的方式操作（读写擦） Flash 或分区，方便开发者进行调试、测试；
 
 ### 1.1 目录结构
 
@@ -12,6 +18,7 @@
 | ---- | ---- |
 | inc  | 头文件目录 |
 | src  | 源代码目录 |
+| samples | 例程目录 |
 
 ### 1.2 许可证
 
@@ -21,17 +28,29 @@ fal package 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
 
 对 RT-Thread 无依赖，也可用于裸机
 
-## 2、如何打开 fal
+> 测试命令功能需要依赖 RT-Thread Finsh/MSH
 
-> 说明：描述该 package 位于 menuconfig 的位置，并对与其相关的配置进行介绍
+## 2、如何打开 fal
 
 使用 fal package 需要在 RT-Thread 的包管理器中选择它，具体路径如下：
 
 ```
 RT-Thread online packages
-    miscellaneous packages --->
-        [*] A hello package
+    system packages --->
+        [*] fal: Flash Abstraction Layer implement. Manage flash device and partition.
+        [*]   Enable debug log output
+        [ ]   FAL partition table config has defined on 'fal_cfg.h'
+        (onchip) The flash device which saving partition table
+        (65536) The patition table end address relative to flash device offset.
+              version (latest)  --->
 ```
+
+每个功能的配置说明如下：
+
+- 开启调试日志输出（默认开启）；
+- 分区表是否在 `fal_cfg.h` 中定义（默认开启），；
+
+
 
 然后让 RT-Thread 的包管理器自动更新，或者使用 `pkgs --update` 命令更新包到 BSP 中。
 

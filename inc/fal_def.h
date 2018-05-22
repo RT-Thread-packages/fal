@@ -109,9 +109,9 @@ struct fal_flash_dev
     struct
     {
         int (*init)(void);
-        int (*read)(uint32_t offset, uint8_t *buf, size_t size);
-        int (*write)(uint32_t offset, const uint8_t *buf, size_t size);
-        int (*erase)(uint32_t offset, size_t size);
+        int (*read)(long offset, uint8_t *buf, size_t size);
+        int (*write)(long offset, const uint8_t *buf, size_t size);
+        int (*erase)(long offset, size_t size);
     } ops;
 };
 typedef struct fal_flash_dev *fal_flash_dev_t;
@@ -129,7 +129,7 @@ struct fal_partition
     char flash_name[FAL_DEV_NAME_MAX];
 
     /* partition offset address on flash device */
-    uint32_t offset;
+    long offset;
     size_t len;
 
     uint8_t reserved;

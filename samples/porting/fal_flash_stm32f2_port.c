@@ -119,7 +119,7 @@ static int init(void)
     /* do nothing now */
 }
 
-static int read(uint32_t offset, uint8_t *buf, size_t size)
+static int read(long offset, uint8_t *buf, size_t size)
 {
     uint32_t addr = stm32f2_onchip_flash.addr + offset;
     for (; size > 0; size -= 1, addr += 1, buf++)
@@ -130,7 +130,7 @@ static int read(uint32_t offset, uint8_t *buf, size_t size)
     return size;
 }
 
-static int write(uint32_t offset, const uint8_t *buf, size_t size)
+static int write(long offset, const uint8_t *buf, size_t size)
 {
     size_t i;
     uint32_t read_data;
@@ -156,7 +156,7 @@ static int write(uint32_t offset, const uint8_t *buf, size_t size)
     return size;
 }
 
-static int erase(uint32_t offset, size_t size)
+static int erase(long offset, size_t size)
 {
     FLASH_Status flash_status;
     size_t erased_size = 0;
