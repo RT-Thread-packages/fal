@@ -105,6 +105,8 @@ struct fal_flash_dev
     /* flash device start address and len  */
     uint32_t addr;
     size_t len;
+    /* the block size in the flash for erase minimum granularity */
+    size_t blk_size;
 
     struct
     {

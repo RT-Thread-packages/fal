@@ -39,4 +39,4 @@ static int erase(long offset, size_t size)
 
     return size;
 }
-const struct fal_flash_dev nor_flash0 = { "norflash0", 0, 8*1024*1024, {NULL, read, write, erase} };
+const struct fal_flash_dev nor_flash0 = { "norflash0", 0, 8*1024*1024, 4096, {NULL, read, write, erase} };
