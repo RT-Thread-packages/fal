@@ -85,7 +85,18 @@ RT-Thread online packages
 | len    | 分区表的长度 |
 | return | 分区表   |
 
-### 3.1.4 从分区读取数据
+### 3.1.4 临时设置分区表
+
+FAL 初始化时会自动装载默认分区表。使用该设置将临时修改分区表，重启后会 **丢失** 该设置
+
+`void fal_set_partition_table_temp(struct fal_partition *table, size_t len)`
+
+| 参数    | 描述                      |
+| :----- | :----------------------- |
+| table  | 分区表 |
+| len    | 分区表的长度 |
+
+### 3.1.5 从分区读取数据
 
 `int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t *buf, size_t size)`
 
@@ -97,7 +108,7 @@ RT-Thread online packages
 | size   | 待读取数据的大小 |
 | return | 返回实际读取的数据大小   |
 
-### 3.1.5 往分区写入数据
+### 3.1.6 往分区写入数据
 
 `int fal_partition_write(const struct fal_partition *part, uint32_t addr, const uint8_t *buf, size_t size)`
 
@@ -109,7 +120,7 @@ RT-Thread online packages
 | size   | 待写入数据的大小 |
 | return | 返回实际写入的数据大小   |
 
-### 3.1.6 擦除分区数据
+### 3.1.7 擦除分区数据
 
 `int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t size)`
 
@@ -120,7 +131,7 @@ RT-Thread online packages
 | size   | 擦除区域的大小 |
 | return | 返回实际擦除的区域大小   |
 
-### 3.1.7 擦除整个分区数据
+### 3.1.8 擦除整个分区数据
 
 `int fal_partition_erase_all(const struct fal_partition *part)`
 
@@ -129,7 +140,7 @@ RT-Thread online packages
 | part   | 分区对象 |
 | return | 返回实际擦除的区域大小   |
 
-### 3.1.8 打印分区表
+### 3.1.9 打印分区表
 
 `void fal_show_part_table(void)`
 

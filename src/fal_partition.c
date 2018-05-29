@@ -283,6 +283,22 @@ const struct fal_partition *fal_get_partition_table(size_t *len)
 }
 
 /**
+ * set partition table temporarily
+ * This setting will modify the partition table temporarily, the setting will be lost after restart.
+ *
+ * @param table partition table
+ * @param len partition table length
+ */
+void fal_set_partition_table_temp(struct fal_partition *table, size_t len)
+{
+    assert(init_ok);
+    assert(table);
+
+    partition_table_len = len;
+    partition_table = table;
+}
+
+/**
  * read data from partition
  *
  * @param part partition
