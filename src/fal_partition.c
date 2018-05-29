@@ -101,7 +101,13 @@ void fal_show_part_table(void)
     log_i("-------------------------------------------------------------");
     for (i = 0; i < partition_table_len; i++)
     {
+
+#ifdef FAL_PART_HAS_TABLE_CFG
+        part = &partition_table[i];
+#else
         part = &partition_table[partition_table_len - i - 1];
+#endif
+
         log_i("| %-*.*s | %-*.*s | 0x%08lx | 0x%08x |", part_name_max, FAL_DEV_NAME_MAX, part->name, flash_dev_name_max,
                 FAL_DEV_NAME_MAX, part->flash_name, part->offset, part->len);
     }
