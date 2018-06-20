@@ -247,7 +247,7 @@ int fal_partition_init(void)
 
 _exit:
 
-#ifdef FAL_DEBUG
+#if FAL_DEBUG
     fal_show_part_table();
 #endif
 
