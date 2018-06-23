@@ -74,6 +74,9 @@ static struct fal_partition *partition_table = NULL;
 static uint8_t init_ok = 0;
 static size_t partition_table_len = 0;
 
+/**
+ * print the partition table
+ */
 void fal_show_part_table(void)
 {
     char *item1 = "name", *item2 = "flash_dev";
@@ -261,6 +264,14 @@ _exit:
     return partition_table_len;
 }
 
+/**
+ * find the partition by name
+ *
+ * @param name partition name
+ *
+ * @return != NULL: partition
+ *            NULL: not found
+ */
 const struct fal_partition *fal_partition_find(const char *name)
 {
     assert(init_ok);
@@ -278,6 +289,13 @@ const struct fal_partition *fal_partition_find(const char *name)
     return NULL;
 }
 
+/**
+ * get the partition table
+ *
+ * @param len return the partition table length
+ *
+ * @return partition table
+ */
 const struct fal_partition *fal_get_partition_table(size_t *len)
 {
     assert(init_ok);
@@ -312,7 +330,8 @@ void fal_set_partition_table_temp(struct fal_partition *table, size_t len)
  * @param buf read buffer
  * @param size read size
  *
- * @return -1: error
+ * @return >= 0: successful read data size
+ *           -1: error
  */
 int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t *buf, size_t size)
 {
@@ -352,7 +371,8 @@ int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t 
  * @param buf write buffer
  * @param size write size
  *
- * @return -1: error
+ * @return >= 0: successful write data size
+ *           -1: error
  */
 int fal_partition_write(const struct fal_partition *part, uint32_t addr, const uint8_t *buf, size_t size)
 {
@@ -391,7 +411,8 @@ int fal_partition_write(const struct fal_partition *part, uint32_t addr, const u
  * @param addr relative address for partition
  * @param size erase size
  *
- * @return -1: error
+ * @return >= 0: successful erased data size
+ *           -1: error
  */
 int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t size)
 {
@@ -427,7 +448,8 @@ int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t 
  *
  * @param part partition
  *
- * @return -1: error
+ * @return >= 0: successful erased data size
+ *           -1: error
  */
 int fal_partition_erase_all(const struct fal_partition *part)
 {

@@ -68,11 +68,12 @@ int fal_flash_init(void)
 }
 
 /**
- * Find flash device by name
+ * find flash device by name
  *
  * @param name flash device name
  *
- * @return NULL: Not found
+ * @return != NULL: flash device
+ *            NULL: not found
  */
 const struct fal_flash_dev *fal_flash_device_find(const char *name)
 {
