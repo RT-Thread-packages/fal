@@ -144,6 +144,18 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 
 `void fal_show_part_table(void)`
 
+### 3.1.10 根据分区名称，创建对应的块设备
+
+该函数可以根据指定的分区名称，创建对应的块设备，以便于在指定的分区上挂载文件系统
+
+`struct rt_device *fal_blk_device_create(const char *parition_name)`
+
+| 参数           | 描述                      |
+| :-----        | :-----------------------  |
+| parition_name | 分区名称 |
+| return        | 创建成功，则返回对应的块设备，失败返回空   |
+
+
 ## 3.2 Finsh/MSH 测试命令
 
 fal 提供了丰富的测试命令，项目只要在 RT-Thread 上开启 Finsh/MSH 功能即可。在做一些基于 Flash 的应用开发、调试时，这些命令会非常实用。它可以准确的写入或者读取指定位置的原始 Flash 数据，快速的验证 Flash 驱动的完整性，甚至可以对 Flash 进行性能测试。
