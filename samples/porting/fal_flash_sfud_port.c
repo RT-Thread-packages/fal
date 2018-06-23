@@ -15,6 +15,7 @@ extern sfud_flash sfud_norflash0;
 
 static int read(long offset, uint8_t *buf, size_t size)
 {
+    assert(sfud_norflash0.init_ok);
     sfud_read(&sfud_norflash0, nor_flash0.addr + offset, size, buf);
 
     return size;
@@ -22,6 +23,7 @@ static int read(long offset, uint8_t *buf, size_t size)
 
 static int write(long offset, const uint8_t *buf, size_t size)
 {
+    assert(sfud_norflash0.init_ok);
     if (sfud_write(&sfud_norflash0, nor_flash0.addr + offset, size, buf) != SFUD_SUCCESS)
     {
         return -1;
@@ -32,6 +34,7 @@ static int write(long offset, const uint8_t *buf, size_t size)
 
 static int erase(long offset, size_t size)
 {
+    assert(sfud_norflash0.init_ok);
     if (sfud_erase(&sfud_norflash0, nor_flash0.addr + offset, size) != SFUD_SUCCESS)
     {
         return -1;
