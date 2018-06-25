@@ -21,6 +21,7 @@
  * Date           Author       Notes
  * 2018-05-17     armink       the first version
  */
+
 #ifndef _FAL_DEF_H_
 #define _FAL_DEF_H_
 
