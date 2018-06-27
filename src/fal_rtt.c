@@ -1,5 +1,5 @@
 /*
- * File      : fal.c
+ * File      : fal_rtt.c
  * This file is part of FAL (Flash Abstraction Layer) package
  * COPYRIGHT (C) 2006 - 2018, RT-Thread Development Team
  *
