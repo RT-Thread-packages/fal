@@ -112,13 +112,24 @@ static rt_size_t blk_dev_write(rt_device_t dev, rt_off_t pos, const void* buffer
 {
     int ret = 0;
     struct fal_blk_device *part;
+    rt_off_t phy_pos;
+    rt_size_t phy_size;
 
     part = (struct fal_blk_device*) dev;
     assert(part != RT_NULL);
 
-    ret = fal_partition_write(part->fal_part, pos * part->geometry.block_size, buffer, size * part->geometry.block_size);
+    /* change the block device's logic address to physical address */
+    phy_pos = pos * part->geometry.bytes_per_sector;
+    phy_size = size * part->geometry.bytes_per_sector;
 
-    if (ret != (int)(size * part->geometry.block_size))
+    ret = fal_partition_erase(part->fal_part, phy_pos, phy_size);
+
+    if (ret == (int) phy_size)
+    {
+        ret = fal_partition_write(part->fal_part, phy_pos, buffer, phy_size);
+    }
+
+    if (ret != (int) phy_size)
     {
         ret = 0;
     }
