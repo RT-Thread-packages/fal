@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define FAL_SW_VERSION                 "0.1.0"
+#define FAL_SW_VERSION                 "0.2.0"
 
 #ifndef FAL_MALLOC
 #define FAL_MALLOC                     malloc
@@ -135,7 +135,7 @@ struct fal_partition
     long offset;
     size_t len;
 
-    uint8_t reserved;
+    uint32_t reserved;
 };
 typedef struct fal_partition *fal_partition_t;
 
