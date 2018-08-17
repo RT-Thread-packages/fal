@@ -136,8 +136,9 @@ static int init(void)
 
 static int read(long offset, uint8_t *buf, size_t size)
 {
+    size_t i;
     uint32_t addr = stm32f2_onchip_flash.addr + offset;
-    for (; size > 0; size -= 1, addr += 1, buf++)
+    for (i = 0; i < size; i++, addr++, buf++)
     {
         *buf = *(uint8_t *) addr;
     }
