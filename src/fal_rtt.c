@@ -411,7 +411,7 @@ static void fal(uint8_t argc, char **argv) {
                 }
                 else if ((argc > 3 && strcmp(argv[3], "yes")) || argc < 4)
                 {
-                    rt_kprintf("DANGER: It will erase full chip or partition! Please run 'sf bench %d yes'.\n", strtol(argv[2], NULL, 0));
+                    rt_kprintf("DANGER: It will erase full chip or partition! Please run 'fal bench %d yes'.\n", strtol(argv[2], NULL, 0));
                     return;
                 }
                 /* full chip benchmark test */
