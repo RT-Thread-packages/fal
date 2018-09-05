@@ -36,6 +36,8 @@ int fal_init(void)
     extern int fal_partition_init(void);
 
     int result;
+    static uint8_t init_ok = 0;
+
     /* initialize all flash device on FAL flash table */
     result = fal_flash_init();
 
@@ -48,12 +50,14 @@ int fal_init(void)
 
 __exit:
 
-    if (result > 0)
+    if ((result > 0) && (!init_ok))
     {
+        init_ok = 1;
         log_i("RT-Thread Flash Abstraction Layer (V%s) initialize success.", FAL_SW_VERSION);
     }
-    else
+    else if(result <= 0)
     {
+        init_ok = 0;
         log_e("RT-Thread Flash Abstraction Layer (V%s) initialize failed.", FAL_SW_VERSION);
     }
 

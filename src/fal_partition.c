@@ -90,7 +90,7 @@ void fal_show_part_table(void)
             part = &partition_table[i];
             if (strlen(part->name) > part_name_max)
             {
-                part_name_max = strlen(part->flash_name);
+                part_name_max = strlen(part->name);
             }
             if (strlen(part->flash_name) > flash_dev_name_max)
             {
