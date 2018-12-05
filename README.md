@@ -155,6 +155,16 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | parition_name | 分区名称 |
 | return        | 创建成功，则返回对应的块设备，失败返回空   |
 
+### 3.1.11 根据分区名称，创建对应的 MTD Nor Flash 设备
+
+该函数可以根据指定的分区名称，创建对应的 MTD Nor Flash 设备，以便于在指定的分区上挂载文件系统
+
+`struct rt_device *fal_mtd_nor_device_create(const char *parition_name)`
+
+| 参数          | 描述                                                  |
+| :------------ | :---------------------------------------------------- |
+| parition_name | 分区名称                                              |
+| return        | 创建成功，则返回对应的 MTD Nor Flash 设备，失败返回空 |
 
 ## 3.2 Finsh/MSH 测试命令
 

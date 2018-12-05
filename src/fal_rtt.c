@@ -199,6 +199,136 @@ struct rt_device *fal_blk_device_create(const char *parition_name)
 
 #endif /* defined(RT_USING_DFS) */
 
+#if defined(RT_USING_MTD_NOR)
+
+struct fal_mtd_nor_device
+{
+    struct rt_mtd_nor_device       parent;
+    const struct fal_partition     *fal_part;
+};
+
+static rt_size_t mtd_nor_dev_read(struct rt_mtd_nor_nor_device* device, rt_off_t offset, rt_uint8_t* data, rt_uint32_t length)
+{
+    int ret = 0;
+    struct fal_mtd_nor_device *part = (struct fal_mtd_nor_device*) device;
+
+    assert(part != RT_NULL);
+
+    ret = fal_partition_read(part->fal_part, offset, data, length);
+
+    if (ret != (int)length)
+    {
+        ret = 0;
+    }
+    else
+    {
+        ret = length;
+    }
+
+    return ret;
+}
+
+static rt_size_t mtd_nor_dev_write(struct rt_mtd_nor_nor_device* device, rt_off_t offset, const rt_uint8_t* data, rt_uint32_t length)
+{
+    int ret = 0;
+    struct fal_mtd_nor_device *part;
+
+    part = (struct fal_mtd_nor_device*) device;
+    assert(part != RT_NULL);
+
+    ret = fal_partition_write(part->fal_part, offset, data, length);
+
+    if (ret != (int) length)
+    {
+        ret = 0;
+    }
+    else
+    {
+        ret = length;
+    }
+
+    return ret;
+}
+
+static rt_err_t mtd_nor_dev_erase(struct rt_mtd_nor_nor_device* device, rt_off_t offset, rt_uint32_t length)
+{
+    int ret = 0;
+    struct fal_mtd_nor_device *part;
+
+    part = (struct fal_mtd_nor_device*) device;
+    assert(part != RT_NULL);
+
+    ret = fal_partition_erase(part->fal_part, offset, length);
+
+    if (ret != length)
+    {
+        return -RT_ERROR;
+    }
+    else
+    {
+        return RT_EOK;
+    }
+}
+
+static const struct rt_mtd_nor_nor_driver_ops _ops = 
+{
+    RT_NULL,
+    mtd_nor_dev_read,
+    mtd_nor_dev_write,
+    mtd_nor_dev_erase,
+};
+
+/**
+ * create RT-Thread MTD NOR device by specified partition
+ *
+ * @param parition_name partition name
+ *
+ * @return != NULL: created MTD NOR device
+ *            NULL: created failed
+ */
+struct rt_device *fal_mtd_nor_device_create(const char *parition_name)
+{
+    struct fal_mtd_nor_device *mtd_nor_dev;
+    const struct fal_partition *fal_part = fal_partition_find(parition_name);
+    const struct fal_flash_dev *fal_flash = NULL;
+
+    if (!fal_part)
+    {
+        log_e("Error: the partition name (%s) is not found.", parition_name);
+        return NULL;
+    }
+
+    if ((fal_flash = fal_flash_device_find(fal_part->flash_name)) == NULL)
+    {
+        log_e("Error: the flash device name (%s) is not found.", fal_part->flash_name);
+        return NULL;
+    }
+
+    mtd_nor_dev = (struct fal_mtd_nor_device*) rt_malloc(sizeof(struct fal_mtd_nor_device));
+    if (mtd_nor_dev)
+    {
+        mtd_nor_dev->fal_part = fal_part;
+
+        mtd_nor_dev->parent.block_start = 0;
+        mtd_nor_dev->parent.block_end = fal_part->len / fal_flash->blk_size;
+        mtd_nor_dev->parent.block_size = fal_flash->blk_size;
+
+        /* set ops */
+        mtd_nor_dev->parent.ops = &_ops;
+
+        log_i("The FAL MTD NOR device (%s) created successfully", fal_part->name);
+        rt_mtd_nor_register_device(fal_part->name, &mtd_nor_dev->parent);
+    }
+    else
+    {
+        log_e("Error: no memory for create FAL MTD NOR device");
+    }
+
+    return RT_DEVICE(&mtd_nor_dev->parent);
+}
+
+#endif /* defined(RT_USING_MTD_NOR) */
+
 #if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
 
 #include <finsh.h>

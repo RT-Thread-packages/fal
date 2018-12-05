@@ -92,7 +92,7 @@ if (!(EXPR))                                                                   \
 #ifdef  log_i
 #undef  log_i
 #endif
-#define log_i(...)                     printf("\033[36;22m[I/FAL] ");                                printf(__VA_ARGS__);printf("\033[0m\n")
+#define log_i(...)                     printf("\033[32;22m[I/FAL] ");                                printf(__VA_ARGS__);printf("\033[0m\n")
 
 /* FAL flash and partition device name max length */
 #ifndef FAL_DEV_NAME_MAX
