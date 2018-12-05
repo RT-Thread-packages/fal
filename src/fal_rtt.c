@@ -37,12 +37,6 @@ struct fal_blk_device
     const struct fal_partition     *fal_part;
 };
 
-struct fal_mtd_nor_device
-{
-    struct rt_mtd_nor_device       parent;
-    const struct fal_partition     *fal_part;
-};
-
 /* RT-Thread device interface */
 #if RTTHREAD_VERSION >= 30000
 static rt_err_t blk_dev_control(rt_device_t dev, int cmd, void *args)
@@ -206,6 +200,12 @@ struct rt_device *fal_blk_device_create(const char *parition_name)
 #endif /* defined(RT_USING_DFS) */
 
 #if defined(RT_USING_MTD_NOR)
+
+struct fal_mtd_nor_device
+{
+    struct rt_mtd_nor_device       parent;
+    const struct fal_partition     *fal_part;
+};
 
 static rt_size_t mtd_nor_dev_read(struct rt_mtd_nor_nor_device* device, rt_off_t offset, rt_uint8_t* data, rt_uint32_t length)
 {
