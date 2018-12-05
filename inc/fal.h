@@ -143,4 +143,16 @@ void fal_show_part_table(void);
 struct rt_device *fal_blk_device_create(const char *parition_name);
 #endif /* defined(RT_USING_DFS) */
 
+#if defined(RT_USING_MTD_NOR)
+/**
+ * create RT-Thread MTD NOR device by specified partition
+ *
+ * @param parition_name partition name
+ *
+ * @return != NULL: created MTD NOR device
+ *            NULL: created failed
+ */
+struct rt_device *fal_mtd_nor_device_create(const char *parition_name);
+#endif /* defined(RT_USING_MTD_NOR) */
+
 #endif /* _FAL_H_ */
