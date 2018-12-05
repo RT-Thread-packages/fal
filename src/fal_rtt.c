@@ -207,7 +207,7 @@ struct fal_mtd_nor_device
     const struct fal_partition     *fal_part;
 };
 
-static rt_size_t mtd_nor_dev_read(struct rt_mtd_nor_nor_device* device, rt_off_t offset, rt_uint8_t* data, rt_uint32_t length)
+static rt_size_t mtd_nor_dev_read(struct rt_mtd_nor_device* device, rt_off_t offset, rt_uint8_t* data, rt_uint32_t length)
 {
     int ret = 0;
     struct fal_mtd_nor_device *part = (struct fal_mtd_nor_device*) device;
@@ -228,7 +228,7 @@ static rt_size_t mtd_nor_dev_read(struct rt_mtd_nor_nor_device* device, rt_off_t
     return ret;
 }
 
-static rt_size_t mtd_nor_dev_write(struct rt_mtd_nor_nor_device* device, rt_off_t offset, const rt_uint8_t* data, rt_uint32_t length)
+static rt_size_t mtd_nor_dev_write(struct rt_mtd_nor_device* device, rt_off_t offset, const rt_uint8_t* data, rt_uint32_t length)
 {
     int ret = 0;
     struct fal_mtd_nor_device *part;
@@ -250,7 +250,7 @@ static rt_size_t mtd_nor_dev_write(struct rt_mtd_nor_nor_device* device, rt_off_
     return ret;
 }
 
-static rt_err_t mtd_nor_dev_erase(struct rt_mtd_nor_nor_device* device, rt_off_t offset, rt_uint32_t length)
+static rt_err_t mtd_nor_dev_erase(struct rt_mtd_nor_device* device, rt_off_t offset, rt_uint32_t length)
 {
     int ret = 0;
     struct fal_mtd_nor_device *part;
@@ -270,7 +270,7 @@ static rt_err_t mtd_nor_dev_erase(struct rt_mtd_nor_nor_device* device, rt_off_t
     }
 }
 
-static const struct rt_mtd_nor_nor_driver_ops _ops = 
+static const struct rt_mtd_nor_driver_ops _ops = 
 {
     RT_NULL,
     mtd_nor_dev_read,
