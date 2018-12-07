@@ -155,7 +155,6 @@ struct rt_device *fal_blk_device_create(const char *parition_name);
 struct rt_device *fal_mtd_nor_device_create(const char *parition_name);
 #endif /* defined(RT_USING_MTD_NOR) */
 
-#if defined(RT_USING_DFS_DEVFS)
 /**
  * create RT-Thread char device by specified partition
  *
@@ -165,6 +164,5 @@ struct rt_device *fal_mtd_nor_device_create(const char *parition_name);
  *            NULL: created failed
  */
 struct rt_device *fal_char_device_create(const char *parition_name);
-#endif /* defined(RT_USING_DFS_DEVFS) */
 
 #endif /* _FAL_H_ */
