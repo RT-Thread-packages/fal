@@ -329,6 +329,212 @@ struct rt_device *fal_mtd_nor_device_create(const char *parition_name)
 
 #endif /* defined(RT_USING_MTD_NOR) */
 
+#if defined(RT_USING_DFS_DEVFS)
+
+struct fal_char_device
+{
+    struct rt_device                parent;
+    const struct fal_partition     *fal_part;
+};
+
+/* RT-Thread device interface */
+static rt_size_t char_dev_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
+{
+    int ret = 0;
+    struct fal_char_device *part = (struct fal_char_device *) dev;
+
+    assert(part != RT_NULL);
+
+    if (pos + size > part->fal_part->len)
+        size = part->fal_part->len - pos;
+
+    ret = fal_partition_read(part->fal_part, pos, buffer, size);
+
+    if (ret != (int)(size))
+        ret = 0;
+
+    return ret;
+}
+
+static rt_size_t char_dev_write(rt_device_t dev, rt_off_t pos, const void *buffer, rt_size_t size)
+{
+    int ret = 0;
+    struct fal_char_device *part;
+
+    part = (struct fal_char_device *) dev;
+    assert(part != RT_NULL);
+
+    if (pos == 0)
+    {
+        fal_partition_erase_all(part->fal_part);
+    }
+    else if (pos + size > part->fal_part->len)
+    {
+        size = part->fal_part->len - pos;
+    }
+
+    ret = fal_partition_write(part->fal_part, pos, buffer, size);
+
+    if (ret != (int) size)
+        ret = 0;
+
+    return ret;
+}
+#ifdef RT_USING_DEVICE_OPS
+const static struct rt_device_ops char_dev_ops =
+{
+    RT_NULL,
+    RT_NULL,
+    RT_NULL,
+    char_dev_read,
+    char_dev_write,
+    RT_NULL
+};
+#endif
+
+#ifdef RT_USING_POSIX
+#include <dfs_posix.h>
+
+/* RT-Thread device posix interface */
+static int char_dev_fopen(struct dfs_fd *fd)
+{
+    struct fal_char_device *part = (struct fal_char_device *) fd->data;
+
+    assert(part != RT_NULL);
+
+    switch (fd->flags & O_ACCMODE)
+    {
+    case O_RDONLY:
+        break;
+    case O_WRONLY:
+    case O_RDWR:
+        fal_partition_erase_all(part->fal_part);
+        break;
+    default:
+        break;
+    }
+    fd->pos = 0;
+
+    return RT_EOK;
+}
+
+static int char_dev_fread(struct dfs_fd *fd, void *buf, size_t count)
+{
+    int ret = 0;
+    struct fal_char_device *part = (struct fal_char_device *) fd->data;
+
+    assert(part != RT_NULL);
+
+    if (fd->pos + count > part->fal_part->len)
+        count = part->fal_part->len - fd->pos;
+
+    ret = fal_partition_read(part->fal_part, fd->pos, buf, count);
+
+    if (ret != (int)(count))
+        return 0;
+
+    fd->pos += ret;
+
+    return ret;
+}
+
+static int char_dev_fwrite(struct dfs_fd *fd, const void *buf, size_t count)
+{
+    int ret = 0;
+    struct fal_char_device *part = (struct fal_char_device *) fd->data;
+
+    assert(part != RT_NULL);
+
+    if (fd->pos + count > part->fal_part->len)
+        count = part->fal_part->len - fd->pos;
+
+    ret = fal_partition_write(part->fal_part, fd->pos, buf, count);
+
+    if (ret != (int) count)
+        return 0;
+
+    fd->pos += ret;
+
+    return ret;
+}
+
+const static struct dfs_file_ops char_dev_fops =
+{
+    char_dev_fopen,
+    RT_NULL,
+    RT_NULL,
+    char_dev_fread,
+    char_dev_fwrite,
+    RT_NULL, /* flush */
+    RT_NULL, /* lseek */
+    RT_NULL, /* getdents */
+    RT_NULL,
+};
+#endif /* defined(RT_USING_POSIX) */
+
+/**
+ * create RT-Thread char device by specified partition
+ *
+ * @param parition_name partition name
+ *
+ * @return != NULL: created char device
+ *            NULL: created failed
+ */
+struct rt_device *fal_char_device_create(const char *parition_name)
+{
+    struct fal_char_device *char_dev;
+    const struct fal_partition *fal_part = fal_partition_find(parition_name);
+
+    if (!fal_part)
+    {
+        log_e("Error: the partition name (%s) is not found.", parition_name);
+        return NULL;
+    }
+
+    if ((fal_flash_device_find(fal_part->flash_name)) == NULL)
+    {
+        log_e("Error: the flash device name (%s) is not found.", fal_part->flash_name);
+        return NULL;
+    }
+
+    char_dev = (struct fal_char_device *) rt_malloc(sizeof(struct fal_char_device));
+    if (char_dev)
+    {
+        char_dev->fal_part = fal_part;
+
+        /* register device */
+        char_dev->parent.type = RT_Device_Class_Char;
+
+#ifdef RT_USING_DEVICE_OPS
+        char_dev->parent.ops  = &char_dev_ops;
+#else
+        char_dev->parent.init = NULL;
+        char_dev->parent.open = NULL;
+        char_dev->parent.close = NULL;
+        char_dev->parent.read = char_dev_read;
+        char_dev->parent.write = char_dev_write;
+        char_dev->parent.control = NULL;
+        /* no private */
+        char_dev->parent.user_data = NULL;
+#endif
+        log_i("The FAL char device (%s) created successfully", fal_part->name);
+        rt_device_register(RT_DEVICE(char_dev), fal_part->name, RT_DEVICE_FLAG_RDWR);
+
+#if defined(RT_USING_POSIX)
+        /* set fops */
+        char_dev->parent.fops = &char_dev_fops;
+#endif
+    }
+    else
+    {
+        log_e("Error: no memory for create FAL char device");
+    }
+
+    return RT_DEVICE(char_dev);
+}
+
+#endif /* defined(RT_USING_DFS_DEVFS) */
+
 #if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
 
 #include <finsh.h>
