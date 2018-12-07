@@ -329,7 +329,7 @@ struct rt_device *fal_mtd_nor_device_create(const char *parition_name)
 
 #endif /* defined(RT_USING_MTD_NOR) */
 
-#if defined(RT_USING_DFS)
+#if defined(RT_USING_DFS_DEVFS)
 
 struct fal_char_device
 {
@@ -533,7 +533,7 @@ struct rt_device *fal_char_device_create(const char *parition_name)
     return RT_DEVICE(char_dev);
 }
 
-#endif /* defined(RT_USING_DFS) */
+#endif /* defined(RT_USING_DFS_DEVFS) */
 
 #if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
 
