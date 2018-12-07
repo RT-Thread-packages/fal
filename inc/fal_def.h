@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define FAL_SW_VERSION                 "0.2.0"
+#define FAL_SW_VERSION                 "0.3.0"
 
 #ifndef FAL_MALLOC
 #define FAL_MALLOC                     malloc
