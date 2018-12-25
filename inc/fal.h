@@ -131,7 +131,6 @@ int fal_partition_erase_all(const struct fal_partition *part);
 void fal_show_part_table(void);
 
 /* =============== API provided to RT-Thread =============== */
-#if defined(RT_USING_DFS)
 /**
  * create RT-Thread block device by specified partition
  *
@@ -141,7 +140,6 @@ void fal_show_part_table(void);
  *            NULL: created failed
  */
 struct rt_device *fal_blk_device_create(const char *parition_name);
-#endif /* defined(RT_USING_DFS) */
 
 #if defined(RT_USING_MTD_NOR)
 /**

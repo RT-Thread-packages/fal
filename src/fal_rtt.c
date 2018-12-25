@@ -24,8 +24,6 @@
 
 #include <fal.h>
 
-#if defined(RT_USING_DFS)
-
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <string.h>
@@ -216,8 +214,6 @@ struct rt_device *fal_blk_device_create(const char *parition_name)
     return RT_DEVICE(blk_dev);
 }
 
-#endif /* defined(RT_USING_DFS) */
-
 /* ========================== MTD nor device ======================== */
 #if defined(RT_USING_MTD_NOR)
 
@@ -358,15 +354,6 @@ struct fal_char_device
 };
 
 /* RT-Thread device interface */
-static rt_err_t char_dev_open(rt_device_t dev, rt_uint16_t oflag)
-{
-    struct fal_char_device *part = (struct fal_char_device *) dev;
-
-    /* erase partition when device open */
-    fal_partition_erase_all(part->fal_part);
-
-    return RT_EOK;
-}
 static rt_size_t char_dev_read(rt_device_t dev, rt_off_t pos, void *buffer, rt_size_t size)
 {
     int ret = 0;
@@ -414,7 +401,7 @@ static rt_size_t char_dev_write(rt_device_t dev, rt_off_t pos, const void *buffe
 const static struct rt_device_ops char_dev_ops =
 {
     RT_NULL,
-    char_dev_open,
+    RT_NULL,
     RT_NULL,
     char_dev_read,
     char_dev_write,
@@ -422,7 +409,7 @@ const static struct rt_device_ops char_dev_ops =
 };
 #endif
 
-#ifdef RT_USING_DFS_DEVFS
+#ifdef RT_USING_POSIX
 #include <dfs_posix.h>
 
 /* RT-Thread device filesystem interface */
@@ -501,7 +488,7 @@ const static struct dfs_file_ops char_dev_fops =
     RT_NULL, /* getdents */
     RT_NULL,
 };
-#endif /* defined(RT_USING_DFS_DEVFS) */
+#endif /* defined(RT_USING_POSIX) */
 
 /**
  * create RT-Thread char device by specified partition
@@ -540,7 +527,7 @@ struct rt_device *fal_char_device_create(const char *parition_name)
         char_dev->parent.ops  = &char_dev_ops;
 #else
         char_dev->parent.init = NULL;
-        char_dev->parent.open = char_dev_open;
+        char_dev->parent.open = NULL;
         char_dev->parent.close = NULL;
         char_dev->parent.read = char_dev_read;
         char_dev->parent.write = char_dev_write;
@@ -552,7 +539,7 @@ struct rt_device *fal_char_device_create(const char *parition_name)
         rt_device_register(RT_DEVICE(char_dev), fal_part->name, RT_DEVICE_FLAG_RDWR);
         log_i("The FAL char device (%s) created successfully", fal_part->name);
 
-#if defined(RT_USING_DFS_DEVFS)
+#ifdef RT_USING_POSIX
         /* set fops */
         char_dev->parent.fops = &char_dev_fops;
 #endif
