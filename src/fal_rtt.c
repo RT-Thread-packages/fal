@@ -559,6 +559,8 @@ struct rt_device *fal_char_device_create(const char *parition_name)
 
 static void fal(uint8_t argc, char **argv) {
 
+#define __is_print(ch)                ((unsigned int)((ch) - ' ') < 127u - ' ')
+#define HEXDUMP_WIDTH                 16
 #define CMD_PROBE_INDEX               0
 #define CMD_READ_INDEX                1
 #define CMD_WRITE_INDEX               2
@@ -568,7 +570,7 @@ static void fal(uint8_t argc, char **argv) {
     int result;
     static const struct fal_flash_dev *flash_dev = NULL;
     static const struct fal_partition *part_dev = NULL;
-    size_t i = 0;
+    size_t i = 0, j = 0;
 
     const char* help_info[] =
     {
@@ -665,17 +667,30 @@ static void fal(uint8_t argc, char **argv) {
                             rt_kprintf("Read data success. Start from 0x%08X, size is %ld. The data is:\n", addr,
                                     size);
                             rt_kprintf("Offset (h) 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
-                            for (i = 0; i < size; i++)
+                            for (i = 0; i < size; i += HEXDUMP_WIDTH)
                             {
-                                if (i % 16 == 0)
+                                rt_kprintf("[%08X] ", addr + i);
+                                /* dump hex */
+                                for (j = 0; j < HEXDUMP_WIDTH; j++)
                                 {
-                                    rt_kprintf("[%08X] ", addr + i);
+                                    if (i + j < size)
+                                    {
+                                        rt_kprintf("%02X ", data[i + j]);
+                                    }
+                                    else
+                                    {
+                                        rt_kprintf("   ");
+                                    }
                                 }
-                                rt_kprintf("%02X ", data[i]);
-                                if (((i + 1) % 16 == 0) || i == size - 1)
+                                /* dump char for hex */
+                                for (j = 0; j < HEXDUMP_WIDTH; j++)
                                 {
-                                    rt_kprintf("\n");
+                                    if (i + j < size)
+                                    {
+                                        rt_kprintf("%c", __is_print(data[i + j]) ? data[i + j] : '.');
+                                    }
                                 }
+                                rt_kprintf("\n");
                             }
                             rt_kprintf("\n");
                         }
