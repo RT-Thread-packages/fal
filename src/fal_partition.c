@@ -173,6 +173,7 @@ int fal_partition_init(void)
             if (read_magic_word == ((FAL_PART_MAGIC_WROD_H << 16) + FAL_PART_MAGIC_WROD_L))
             {
                 part_table_find_ok = 1;
+                log_d("Find the partition table on '%s' offset @0x%08lx.", FAL_PART_TABLE_FLASH_DEV_NAME, part_table_offset);
                 break;
             }
         }
