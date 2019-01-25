@@ -1,7 +1,7 @@
 /*
  * File      : fal_def.h
  * This file is part of FAL (Flash Abstraction Layer) package
- * COPYRIGHT (C) 2006 - 2018, RT-Thread Development Team
+ * COPYRIGHT (C) 2006 - 2019, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define FAL_SW_VERSION                 "0.3.0"
+#define FAL_SW_VERSION                 "0.4.0"
 
 #ifndef FAL_MALLOC
 #define FAL_MALLOC                     malloc
