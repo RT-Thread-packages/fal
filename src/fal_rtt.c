@@ -556,6 +556,7 @@ struct rt_device *fal_char_device_create(const char *parition_name)
 #if defined(RT_USING_FINSH) && defined(FINSH_USING_MSH)
 
 #include <finsh.h>
+extern int fal_init_check(void);
 
 static void fal(uint8_t argc, char **argv) {
 
@@ -580,6 +581,12 @@ static void fal(uint8_t argc, char **argv) {
             [CMD_ERASE_INDEX]     = "fal erase addr size              - erase 'size' bytes starting at 'addr'",
             [CMD_BENCH_INDEX]     = "fal bench <blk_size>             - benchmark test with per block size",
     };
+
+    if (fal_init_check() != 1)
+    {
+        rt_kprintf("\n[Warning] FAL is not initialized or failed to initialize!\n\n");
+        return;
+    }
 
     if (argc < 2)
     {
