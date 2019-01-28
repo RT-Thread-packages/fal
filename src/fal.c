@@ -24,6 +24,8 @@
 
 #include <fal.h>
 
+static uint8_t init_ok = 0;
+
 /**
  * FAL (Flash Abstraction Layer) initialization.
  * It will initialize all flash device and all flash partition.
@@ -36,7 +38,6 @@ int fal_init(void)
     extern int fal_partition_init(void);
 
     int result;
-    static uint8_t init_ok = 0;
 
     /* initialize all flash device on FAL flash table */
     result = fal_flash_init();
@@ -62,4 +63,14 @@ __exit:
     }
 
     return result;
+}
+
+/**
+ * Check if the FAL is initialized successfully
+ * 
+ * @return 0: not init or init failed; 1: init success
+ */
+int fal_init_check(void)
+{
+    return init_ok;
 }
