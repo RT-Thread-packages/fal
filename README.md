@@ -10,6 +10,10 @@ FAL (Flash Abstraction Layer) Flash 抽象层，是对 Flash 及基于 Flash 的
 - 统一的操作接口。保证了文件系统、OTA、NVM 等对 Flash 有一定依赖的组件，底层 Flash 驱动的可重用性；
 - 自带基于 Finsh/MSH 的测试命令，可以通过 Shell 按字节寻址的方式操作（读写擦） Flash 或分区，方便开发者进行调试、测试；
 
+FAL 框架图如下：
+
+![FAL 框架图](docs/figures/fal_framework.png)
+
 ### 1.1 目录结构
 
 | 名称 | 说明 |
