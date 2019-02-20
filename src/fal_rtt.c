@@ -476,7 +476,7 @@ static int char_dev_fwrite(struct dfs_fd *fd, const void *buf, size_t count)
     return ret;
 }
 
-const static struct dfs_file_ops char_dev_fops =
+static const struct dfs_file_ops char_dev_fops =
 {
     char_dev_fopen,
     RT_NULL,
