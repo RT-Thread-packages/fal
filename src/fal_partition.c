@@ -233,9 +233,8 @@ int fal_partition_init(void)
         flash_dev = fal_flash_device_find(partition_table[i].flash_name);
         if (flash_dev == NULL)
         {
-            log_e("Initialize failed! Don't found the flash device(%s).", partition_table[i].flash_name);
-            partition_table_len = 0;
-            goto _exit;
+            log_d("Warning: Do NOT found the flash device(%s).", partition_table[i].flash_name);
+            continue;
         }
 
         if (partition_table[i].offset >= (long)flash_dev->len)
