@@ -27,9 +27,10 @@
 #include <stdlib.h>
 
 /* partition magic word */
+#define FAL_PART_MAGIC_WORD         0x45503130
+#define FAL_PART_MAGIC_WORD_H       0x4550L
+#define FAL_PART_MAGIC_WORD_L       0x3130L
 #define FAL_PART_MAGIC_WROD         0x45503130
-#define FAL_PART_MAGIC_WROD_H       0x4550L
-#define FAL_PART_MAGIC_WROD_L       0x3130L
 
 /**
  * FAL partition table config has defined on 'fal_cfg.h'.
@@ -170,7 +171,7 @@ int fal_partition_init(void)
     {
         if (flash_dev->ops.read(part_table_offset, (uint8_t *) &read_magic_word, sizeof(read_magic_word)) > 0)
         {
-            if (read_magic_word == ((FAL_PART_MAGIC_WROD_H << 16) + FAL_PART_MAGIC_WROD_L))
+            if (read_magic_word == ((FAL_PART_MAGIC_WORD_H << 16) + FAL_PART_MAGIC_WORD_L))
             {
                 part_table_find_ok = 1;
                 log_d("Find the partition table on '%s' offset @0x%08lx.", FAL_PART_TABLE_FLASH_DEV_NAME, part_table_offset);
@@ -196,7 +197,7 @@ int fal_partition_init(void)
             break;
         }
 
-        if (new_part->magic_word != ((FAL_PART_MAGIC_WROD_H << 16) + FAL_PART_MAGIC_WROD_L))
+        if (new_part->magic_word != ((FAL_PART_MAGIC_WORD_H << 16) + FAL_PART_MAGIC_WORD_L))
         {
             break;
         }
