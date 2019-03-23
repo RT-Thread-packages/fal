@@ -167,22 +167,57 @@ int fal_partition_init(void)
     }
 
     /* find partition table location */
-    while (part_table_offset >= 0)
     {
-        if (flash_dev->ops.read(part_table_offset, (uint8_t *) &read_magic_word, sizeof(read_magic_word)) > 0)
+        uint8_t read_buf[64];
+
+        part_table_offset -= sizeof(read_buf);
+        while (part_table_offset >= 0)
         {
-            if (read_magic_word == ((FAL_PART_MAGIC_WORD_H << 16) + FAL_PART_MAGIC_WORD_L))
+            if (flash_dev->ops.read(part_table_offset, read_buf, sizeof(read_buf)) > 0)
             {
-                part_table_find_ok = 1;
-                log_d("Find the partition table on '%s' offset @0x%08lx.", FAL_PART_TABLE_FLASH_DEV_NAME, part_table_offset);
+                /* find magic word in read buf */
+                for (i = 0; i < sizeof(read_buf) - sizeof(read_magic_word) + 1; i++)
+                {
+                    read_magic_word = read_buf[0 + i] + (read_buf[1 + i] << 8) + (read_buf[2 + i] << 16) + (read_buf[3 + i] << 24);
+                    if (read_magic_word == ((FAL_PART_MAGIC_WORD_H << 16) + FAL_PART_MAGIC_WORD_L))
+                    {
+                        part_table_find_ok = 1;
+                        part_table_offset += i;
+                        log_d("Find the partition table on '%s' offset @0x%08lx.", FAL_PART_TABLE_FLASH_DEV_NAME,
+                                part_table_offset);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                /* read failed */
                 break;
             }
+
+            if (part_table_find_ok)
+            {
+                break;
+            }
+            else
+            {
+                /* calculate next read buf position */
+                if (part_table_offset >= (long)sizeof(read_buf))
+                {
+                    part_table_offset -= sizeof(read_buf);
+                    part_table_offset += (sizeof(read_magic_word) - 1);
+                }
+                else if (part_table_offset != 0)
+                {
+                    part_table_offset = 0;
+                }
+                else
+                {
+                    /* find failed */
+                    break;
+                }
+            }
         }
-        else
-        {
-            break;
-        }
-        part_table_offset --;
     }
 
     /* load partition table */
