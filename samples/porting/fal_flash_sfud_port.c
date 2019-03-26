@@ -25,12 +25,13 @@
 #include <fal.h>
 #include <sfud.h>
 
+#ifdef FAL_USING_SFUD_PORT
 #ifdef RT_USING_SFUD
 #include <spi_flash_sfud.h>
 #endif
 
-#ifndef NOR_FLASH_DEV_NAME
-#define NOR_FLASH_DEV_NAME             "norflash0"
+#ifndef FAL_USING_NOR_FLASH_DEV_NAME
+#define FAL_USING_NOR_FLASH_DEV_NAME             "norflash0"
 #endif
 
 static int init(void);
@@ -97,3 +98,5 @@ static int erase(long offset, size_t size)
 
     return size;
 }
+#endif /* FAL_USING_SFUD_PORT */
+
