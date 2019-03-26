@@ -29,8 +29,8 @@
 #include <spi_flash_sfud.h>
 #endif
 
-#ifndef NOR_FLASH_DEV_NAME
-#define NOR_FLASH_DEV_NAME             "norflash0"
+#ifndef FAL_USING_NOR_FLASH_DEV_NAME
+#define FAL_USING_NOR_FLASH_DEV_NAME             "norflash0"
 #endif
 
 static int init(void);

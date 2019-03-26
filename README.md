@@ -39,12 +39,14 @@ fal package 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
 ```
 RT-Thread online packages
     system packages --->
-        [*] fal: Flash Abstraction Layer implement. Manage flash device and partition.
+        --- fal: Flash Abstraction Layer implement. Manage flash device and partition.
         [*]   Enable debug log output
-        [ ]   FAL partition table config has defined on 'fal_cfg.h'
+        [*]   FAL partition table config has defined on 'fal_cfg.h'
         (onchip) The flash device which saving partition table
         (65536) The patition table end address relative to flash device offset.
-              version (latest)  --->
+        [ ]   FAL uses SFUD drivers
+        (norflash0) The name of the device used by FAL (NEW)
+                version (latest)  --->
 ```
 
 每个功能的配置说明如下：
@@ -52,7 +54,9 @@ RT-Thread online packages
 - 开启调试日志输出（默认开启）；
 - 分区表是否在 `fal_cfg.h` 中定义（默认开启）。如果关闭此选项，fal 将会自动去指定 Flash 的指定位置去检索并装载分区表，具体配置详见下面两个选项；
   - 存放分区表的 Flash 设备；
-  - 分区表的 **结束地址** 位于 Flash 设备上的偏移。fal 将从此地址开始往回进行检索分区表，直接读取到 Flash 顶部。如果不确定分区表具体位置，这里也可以配置为 Flash 的结束地址，fal 将会检索整个 Flash ，检索时间可能会增加。
+  - 分区表的 **结束地址** 位于 Flash 设备上的偏移。fal 将从此地址开始往回进行检索分区表，直接读取到 Flash 顶部。如果不确定分区表具体位置，这里也可以配置为 Flash 的结束地址，fal 将会检索整个 Flash，检索时间可能会增加。
+- 启用 FAL 针对 SFUD 的移植文件（默认关闭）；
+  - 应输入调用 `rt_sfud_flash_probe` 函数时传入的 FLASH 设备名称（也可以通过 list_device 命令查看 Block Device 的名字获取）。该名称与分区表中的 Flash 名称对应，只有正确设置设备名字，才能完成对 FLASH 的读写操作。
 
 然后让 RT-Thread 的包管理器自动更新，或者使用 `pkgs --update` 命令更新包到 BSP 中。
 
