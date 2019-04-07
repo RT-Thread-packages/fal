@@ -68,6 +68,7 @@ RT-Thread online packages
 
 - [基于 FAL 分区的 fatfs 文件系统例程](https://github.com/RT-Thread/IoT_Board/tree/master/examples/15_component_fs_flash)
 - [基于 FAL 分区的 littlefs 文件系统应用笔记](https://www.rt-thread.org/document/site/application-note/components/dfs/an0027-littlefs/)
+- [基于 FAL 分区的 EasyFlash 移植说明](https://github.com/armink-rtt-pkgs/EasyFlash/tree/master/ports)
 
 ## 3.2 API
 
