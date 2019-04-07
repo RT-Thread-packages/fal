@@ -62,11 +62,16 @@ RT-Thread online packages
 
 ## 3、使用 fal
 
-使用 fal 前需要对项目的 Flash 进行移植工作，移植的文档位于： [/samples/porting/README.md](samples/porting/README.md) 。移植完成后，调用 `fal_init() ` 初始化该库。接下来即可调用如下 API：
+使用 fal 前需要对项目的 Flash 进行移植工作，移植的文档位于： [/samples/porting/README.md](samples/porting/README.md) 。移植完成后，调用 `fal_init() ` 初始化该库。
 
-## 3.1 API
+## 3.1 常见应用
 
-### 3.1.1 查找 Flash 设备 
+- [基于 FAL 分区的 fatfs 文件系统例程](https://github.com/RT-Thread/IoT_Board/tree/master/examples/15_component_fs_flash)
+- [基于 FAL 分区的 littlefs 文件系统应用笔记](https://www.rt-thread.org/document/site/application-note/components/dfs/an0027-littlefs/)
+
+## 3.2 API
+
+### 3.2.1 查找 Flash 设备 
 
 `const struct fal_flash_dev *fal_flash_device_find(const char *name)`
 
@@ -75,7 +80,7 @@ RT-Thread online packages
 | name   | Flash 设备名称 |
 | return | 如果查找成功，将返回 Flash 设备对象，查找失败返回 NULL    |
 
-### 3.1.2 查找 Flash 分区
+### 3.2.2 查找 Flash 分区
 
 `const struct fal_partition *fal_partition_find(const char *name)`
 
@@ -84,7 +89,7 @@ RT-Thread online packages
 | name   | Flash 分区名称 |
 | return | 如果查找成功，将返回 Flash 分区对象，查找失败返回 NULL    |
 
-### 3.1.3 获取分区表
+### 3.2.3 获取分区表
 
 `const struct fal_partition *fal_get_partition_table(size_t *len)`
 
@@ -93,7 +98,7 @@ RT-Thread online packages
 | len    | 分区表的长度 |
 | return | 分区表   |
 
-### 3.1.4 临时设置分区表
+### 3.2.4 临时设置分区表
 
 FAL 初始化时会自动装载默认分区表。使用该设置将临时修改分区表，重启后会 **丢失** 该设置
 
@@ -104,7 +109,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | table  | 分区表 |
 | len    | 分区表的长度 |
 
-### 3.1.5 从分区读取数据
+### 3.2.5 从分区读取数据
 
 `int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t *buf, size_t size)`
 
@@ -116,7 +121,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | size   | 待读取数据的大小 |
 | return | 返回实际读取的数据大小   |
 
-### 3.1.6 往分区写入数据
+### 3.2.6 往分区写入数据
 
 `int fal_partition_write(const struct fal_partition *part, uint32_t addr, const uint8_t *buf, size_t size)`
 
@@ -128,7 +133,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | size   | 待写入数据的大小 |
 | return | 返回实际写入的数据大小   |
 
-### 3.1.7 擦除分区数据
+### 3.2.7 擦除分区数据
 
 `int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t size)`
 
@@ -139,7 +144,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | size   | 擦除区域的大小 |
 | return | 返回实际擦除的区域大小   |
 
-### 3.1.8 擦除整个分区数据
+### 3.2.8 擦除整个分区数据
 
 `int fal_partition_erase_all(const struct fal_partition *part)`
 
@@ -148,11 +153,11 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | part   | 分区对象 |
 | return | 返回实际擦除的区域大小   |
 
-### 3.1.9 打印分区表
+### 3.2.9 打印分区表
 
 `void fal_show_part_table(void)`
 
-### 3.1.10 根据分区名称，创建对应的块设备
+### 3.2.10 根据分区名称，创建对应的块设备
 
 该函数可以根据指定的分区名称，创建对应的块设备，以便于在指定的分区上挂载文件系统
 
@@ -163,7 +168,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | parition_name | 分区名称 |
 | return        | 创建成功，则返回对应的块设备，失败返回空   |
 
-### 3.1.11 根据分区名称，创建对应的 MTD Nor Flash 设备
+### 3.2.11 根据分区名称，创建对应的 MTD Nor Flash 设备
 
 该函数可以根据指定的分区名称，创建对应的 MTD Nor Flash 设备，以便于在指定的分区上挂载文件系统
 
@@ -174,7 +179,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | parition_name | 分区名称                                              |
 | return        | 创建成功，则返回对应的 MTD Nor Flash 设备，失败返回空 |
 
-### 3.1.12 根据分区名称，创建对应的字符设备
+### 3.2.12 根据分区名称，创建对应的字符设备
 
 该函数可以根据指定的分区名称，创建对应的字符设备，以便于通过 deivice 接口或 devfs 接口操作分区，开启了 POSIX 后，还可以通过 oepn/read/write 函数操作分区。
 
@@ -185,7 +190,7 @@ FAL 初始化时会自动装载默认分区表。使用该设置将临时修改�
 | parition_name | 分区名称                                   |
 | return        | 创建成功，则返回对应的字符设备，失败返回空 |
 
-## 3.2 Finsh/MSH 测试命令
+## 3.3 Finsh/MSH 测试命令
 
 fal 提供了丰富的测试命令，项目只要在 RT-Thread 上开启 Finsh/MSH 功能即可。在做一些基于 Flash 的应用开发、调试时，这些命令会非常实用。它可以准确的写入或者读取指定位置的原始 Flash 数据，快速的验证 Flash 驱动的完整性，甚至可以对 Flash 进行性能测试。
 
@@ -203,7 +208,7 @@ fal bench <blk_size>             - benchmark test with per block size
 msh />
 ```
 
-### 3.2.1 指定待操作的 Flash 设备或 Flash 分区
+### 3.3.1 指定待操作的 Flash 设备或 Flash 分区
 
 当第一次使用 fal 命令时，直接输入 `fal probe`  将会显示分区表信息。可以指定待操作的对象为分区表里的某个分区，或者某个 Flash 设备。
 
@@ -227,7 +232,7 @@ Probed a flash partition | download | flash_dev: norflash0 | offset: 1048576 | l
 msh />
 ```
 
-### 3.2.2 擦除数据
+### 3.3.2 擦除数据
 
 先输入 `fal erase` ，后面跟着待擦除数据的起始地址以及长度。以下命令为：从 0 地址（相对 Flash 或分区）开始擦除 4096 字节数据
 
@@ -239,7 +244,7 @@ Erase data success. Start from 0x00000000, size is 4096.
 msh />
 ```
 
-### 3.2.3 写入数据
+### 3.3.3 写入数据
 
 先输入 `fal write` ，后面跟着 N 个待写入的数据，并以空格隔开。以下命令为：从地址 8 的位置依次开始写入 1、2、3、4 、 5 这 5 个字节数据
 
@@ -250,7 +255,7 @@ Write data: 1 2 3 4 5 .
 msh />
 ```
 
-### 3.2.4 读取数据
+### 3.3.4 读取数据
 
 先输入 `fal read` ，后面跟着待读取数据的起始地址以及长度。以下命令为：从 0 地址开始读取 64 字节数据
 
@@ -266,7 +271,7 @@ Offset (h) 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 msh />
 ```
 
-### 3.2.5 性能测试
+### 3.3.5 性能测试
 
 性能测试将会测试 Flash 的擦除、写入及读取速度，同时将会测试写入及读取数据的准确性，保证整个 Flash 或整个分区的 写入与读取 数据的一致性。
 
