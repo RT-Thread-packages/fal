@@ -40,14 +40,14 @@ static int write(long offset, const uint8_t *buf, size_t size);
 static int erase(long offset, size_t size);
 
 static sfud_flash_t sfud_dev = NULL;
-struct fal_flash_dev nor_flash0 = {NOR_FLASH_DEV_NAME, 0, 8*1024*1024, 4096, {init, read, write, erase}};
+struct fal_flash_dev nor_flash0 = {FAL_USING_NOR_FLASH_DEV_NAME, 0, 8 * 1024 * 1024, 4096, {init, read, write, erase}};
 
 static int init(void)
 {
 
 #ifdef RT_USING_SFUD
     /* RT-Thread RTOS platform */
-    sfud_dev = rt_sfud_flash_find_by_dev_name(NOR_FLASH_DEV_NAME);
+    sfud_dev = rt_sfud_flash_find_by_dev_name(FAL_USING_NOR_FLASH_DEV_NAME);
 #else
     /* bare metal platform */
     extern sfud_flash sfud_norflash0;
