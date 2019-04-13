@@ -50,6 +50,16 @@
 #define FAL_DEBUG                      0
 #endif
 
+#ifndef FAL_PRINTF
+#ifdef RT_VER_NUM
+/* for RT-Thread platform */
+extern void rt_kprintf(const char *fmt, ...);
+#define FAL_PRINTF rt_kprintf
+#else
+#define FAL_PRINTF printf
+#endif /* RT_VER_NUM */
+#endif /* FAL_PRINTF */
+
 #if FAL_DEBUG
 #ifdef assert
 #undef assert
@@ -57,16 +67,15 @@
 #define assert(EXPR)                                                           \
 if (!(EXPR))                                                                   \
 {                                                                              \
-    printf("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);            \
+    FAL_PRINTF("(%s) has assert failed at %s.\n", #EXPR, __FUNCTION__);        \
     while (1);                                                                 \
 }
-
 
 /* debug level log */
 #ifdef  log_d
 #undef  log_d
 #endif
-#define log_d(...)                     printf("[D/FAL] (%s:%d) ", __FUNCTION__, __LINE__);           printf(__VA_ARGS__);printf("\n")
+#define log_d(...)                     FAL_PRINTF("[D/FAL] (%s:%d) ", __FUNCTION__, __LINE__);           FAL_PRINTF(__VA_ARGS__);FAL_PRINTF("\n")
 
 #else
 
@@ -86,13 +95,13 @@ if (!(EXPR))                                                                   \
 #ifdef  log_e
 #undef  log_e
 #endif
-#define log_e(...)                     printf("\033[31;22m[E/FAL] (%s:%d) ", __FUNCTION__, __LINE__);printf(__VA_ARGS__);printf("\033[0m\n")
+#define log_e(...)                     FAL_PRINTF("\033[31;22m[E/FAL] (%s:%d) ", __FUNCTION__, __LINE__);FAL_PRINTF(__VA_ARGS__);FAL_PRINTF("\033[0m\n")
 
 /* info level log */
 #ifdef  log_i
 #undef  log_i
 #endif
-#define log_i(...)                     printf("\033[32;22m[I/FAL] ");                                printf(__VA_ARGS__);printf("\033[0m\n")
+#define log_i(...)                     FAL_PRINTF("\033[32;22m[I/FAL] ");                                FAL_PRINTF(__VA_ARGS__);FAL_PRINTF("\033[0m\n")
 
 /* FAL flash and partition device name max length */
 #ifndef FAL_DEV_NAME_MAX
