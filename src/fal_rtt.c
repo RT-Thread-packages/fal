@@ -20,10 +20,12 @@
  * Change Logs:
  * Date           Author       Notes
  * 2018-06-23     armink       the first version
+ * 2019-08-22     MurphyZhao   adapt to none rt-thread case
  */
 
 #include <fal.h>
 
+#ifdef RT_VER_NUM
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <string.h>
@@ -925,3 +927,4 @@ static void fal(uint8_t argc, char **argv) {
 MSH_CMD_EXPORT(fal, FAL (Flash Abstraction Layer) operate.);
 
 #endif /* defined(RT_USING_FINSH) && defined(FINSH_USING_MSH) */
+#endif /* RT_VER_NUM */
