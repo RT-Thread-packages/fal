@@ -42,7 +42,7 @@
 
 `const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 1024*1024, 128*1024, {init, read, write, erase} };`
 
-- "stm32_onchip" : Flash 设备的名字
+- `"stm32_onchip"` : Flash 设备的名字
 - 0x08000000: 对 Flash 操作的起始地址
 - 1024*1024：Flash 的总大小（1MB）
 - 128*1024：Flash 块/扇区大小（因为 STM32F2 各块大小不均匀，所以擦除粒度为最大块的大小：128K）
@@ -50,7 +50,7 @@
 
 ### 1.2 定义 Flash 设备表
 
-Flash 设备表定义在 `fal_cfg.h` 头文件中。参考如下代码：
+Flash 设备表定义在 `fal_cfg.h` 头文件中，定义分区表前需 **新建 `fal_cfg.h` 文件** 。参考如下代码：
 
 ```c
 /* ===================== Flash device Configuration ========================= */
