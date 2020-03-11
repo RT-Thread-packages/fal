@@ -289,9 +289,11 @@ Read benchmark success, total time: 2.716S.
 msh />
 ```
 
-## 4、注意事项
+## 4、常见问题
 
-暂无
+### 使用时，无法找到 `fal_cfg.h` 头文件
+
+`fal_cfg.h` 为 fal 软件包的配置文件，需要用户手动新建，并定义相关的分区表信息，详见： [移植文档 /samples/porting/README.md](samples/porting/README.md)
 
 ## 5、联系方式
 
