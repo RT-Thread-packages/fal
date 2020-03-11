@@ -50,7 +50,9 @@
 
 ### 1.2 定义 Flash 设备表
 
-Flash 设备表定义在 `fal_cfg.h` 头文件中，定义分区表前需 **新建 `fal_cfg.h` 文件** 。参考如下代码：
+Flash 设备表定义在 `fal_cfg.h` 头文件中，定义分区表前需 **新建 `fal_cfg.h` 文件** 。
+
+参考 [示例文件 samples/porting/fal_cfg.h](samples/porting/fal_cfg.h) 或如下代码：
 
 ```c
 /* ===================== Flash device Configuration ========================= */
@@ -71,7 +73,7 @@ Flash 设备表中，有两个 Flash 对象，一个为 STM32F2 的片内 Flash 
 
 Flash 分区基于 Flash 设备，每个 Flash 设备又可以有 N 个分区，这些分区的集合就是分区表。在配置分区表前，务必保证已定义好 Flash 设备及设备表。
 
-分区表也定义在 `fal_cfg.h` 头文件中。参考如下代码：
+分区表也定义在 `fal_cfg.h` 头文件中。参考 [示例文件 samples/porting/fal_cfg.h](samples/porting/fal_cfg.h) 或如下代码：
 
 ```C
 #define NOR_FLASH_DEV_NAME             "norflash0"
