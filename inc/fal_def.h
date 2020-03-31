@@ -118,6 +118,9 @@ struct fal_flash_dev
     /* the block size in the flash for erase minimum granularity */
     size_t blk_size;
 
+    /* write minimum granularity, unit: bit. 0 will not take effect. */
+    size_t write_gran;
+
     struct
     {
         int (*init)(void);

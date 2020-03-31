@@ -40,7 +40,12 @@ static int write(long offset, const uint8_t *buf, size_t size);
 static int erase(long offset, size_t size);
 
 static sfud_flash_t sfud_dev = NULL;
+
+#if (PKG_FAL_VER_NUM > 0x00400)
+struct fal_flash_dev nor_flash0 = {FAL_USING_NOR_FLASH_DEV_NAME, 0, 8 * 1024 * 1024, 4096, 1, {init, read, write, erase}};
+#else
 struct fal_flash_dev nor_flash0 = {FAL_USING_NOR_FLASH_DEV_NAME, 0, 8 * 1024 * 1024, 4096, {init, read, write, erase}};
+#endif
 
 static int init(void)
 {

@@ -113,13 +113,14 @@ fal package 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
 用户需要根据自己的 Flash 情况分别实现这些操作函数。在文件最底部定义了具体的 Flash 设备对象 ，如下示例定义了 stm32f2 片上 flash：stm32f2_onchip_flash
 
 ```c
-const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 1024*1024, 128*1024, {init, read, write, erase} };
+const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 1024*1024, 128*1024, 1, {init, read, write, erase} };
 ```
 
 - `"stm32_onchip"` : Flash 设备的名字。
 - `0x08000000`: 对 Flash 操作的起始地址。
 - `1024*1024`：Flash 的总大小（1MB）。
 - `128*1024`：Flash 块/扇区大小（因为 STM32F2 各块大小不均匀，所以擦除粒度为最大块的大小：128K）。
+- `1` : 设置写粒度，单位 bit，0 表示未生效。各个 flash 写入粒度不尽相同，可通过该成员设置写粒度。是 fal 版本大于 4.0 后的新增成员。
 - `{init, read, write, erase}` ：Flash 的操作函数。 如果没有 init 初始化过程，第一个操作函数位置可以置空。
 
 ### 2.2、定义 flash 设备表
