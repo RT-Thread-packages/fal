@@ -1,8 +1,8 @@
-# fal：Flash 抽象层
+# FAL：Flash 抽象层
 
-## 1、介绍
+## 1、FAL介绍
 
-FAL (Flash Abstraction Layer) Flash 抽象层，是对 Flash 及基于 Flash 的分区进行管理、操作的抽象层，对上层统一了 Flash 及 分区操作的 API ，并具有以下特性：
+FAL (Flash Abstraction Layer) Flash 抽象层，是对 Flash 及基于 Flash 的分区进行管理、操作的抽象层，对上层统一了 Flash 及 分区操作的 API (框架图如下所示)，并具有以下特性：
 
 - 支持静态可配置的分区表，并可关联多个 Flash 设备；
 - 分区表支持 **自动装载** 。避免在多固件项目，分区表被多次定义的问题；
@@ -10,29 +10,9 @@ FAL (Flash Abstraction Layer) Flash 抽象层，是对 Flash 及基于 Flash 的
 - 统一的操作接口。保证了文件系统、OTA、NVM（例如：[EasyFlash](https://github.com/armink-rtt-pkgs/EasyFlash)） 等对 Flash 有一定依赖的组件，底层 Flash 驱动的可重用性；
 - 自带基于 Finsh/MSH 的测试命令，可以通过 Shell 按字节寻址的方式操作（读写擦） Flash 或分区，方便开发者进行调试、测试；
 
-FAL 框架图如下：
+![FAL framework](docs/figures/fal_framework.png)
 
-![FAL 框架图](docs/figures/fal_framework.png)
-
-### 1.1 目录结构
-
-| 名称 | 说明 |
-| ---- | ---- |
-| inc  | 头文件目录 |
-| src  | 源代码目录 |
-| samples | 例程目录 |
-
-### 1.2 许可证
-
-fal package 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
-
-### 1.3 依赖
-
-对 RT-Thread 无依赖，也可用于裸机。
-
-> 测试命令功能需要依赖 RT-Thread Finsh/MSH
-
-## 2、如何打开 fal
+### 1.1、打开 FAL
 
 使用 fal package 需要在 RT-Thread 的包管理器中选择它，具体路径如下：
 
@@ -60,138 +40,148 @@ RT-Thread online packages
 
 然后让 RT-Thread 的包管理器自动更新，或者使用 `pkgs --update` 命令更新包到 BSP 中。
 
-## 3、使用 fal
+### 1.2、FAL 目录
 
-使用 fal 前需要对项目的 Flash 进行移植工作，移植的文档位于： [/samples/porting/README.md](samples/porting/README.md) 。移植完成后，调用 `fal_init() ` 初始化该库。
+| 名称    | 说明       |
+| ------- | ---------- |
+| inc     | 头文件目录 |
+| src     | 源代码目录 |
+| samples | 例程目录   |
 
-## 3.1 常见应用
+### 1.3、FAL API
 
-- [基于 FAL 分区的 fatfs 文件系统例程](https://github.com/RT-Thread/IoT_Board/tree/master/examples/15_component_fs_flash)
-- [基于 FAL 分区的 littlefs 文件系统应用笔记](https://www.rt-thread.org/document/site/application-note/components/dfs/an0027-littlefs/)
-- [基于 FAL 分区的 EasyFlash 移植说明](https://github.com/armink-rtt-pkgs/EasyFlash/tree/master/ports)
+FAL 相关的 API 如图所示，[点击此处查看 API 参数详解](docs/fal_api.md)。
 
-## 3.2 API
+![FAL API](docs/figures/fal-api.png)
 
-### 3.2.1 查找 Flash 设备 
+### 1.4、许可证
 
-`const struct fal_flash_dev *fal_flash_device_find(const char *name)`
+fal package 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| name   | Flash 设备名称 |
-| return | 如果查找成功，将返回 Flash 设备对象，查找失败返回 NULL    |
+### 1.5、依赖
 
-### 3.2.2 查找 Flash 分区
+对 RT-Thread 无依赖，也可用于裸机。
 
-`const struct fal_partition *fal_partition_find(const char *name)`
+> 测试命令功能需要依赖 RT-Thread Finsh/MSH
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| name   | Flash 分区名称 |
-| return | 如果查找成功，将返回 Flash 分区对象，查找失败返回 NULL    |
+## 2、使用 FAL
 
-### 3.2.3 获取分区表
+使用 FAL 的基本步骤如下所示：
 
-`const struct fal_partition *fal_get_partition_table(size_t *len)`
+1. 打开 FAL：从 Env 中打开 fal 软件包并下载到工程。
+2. FAL 移植：定义 flash 设备、定义 flash 设备表、定义 flash 分区表。以下主要对步骤 2 展开讲解。
+3. 调用 fal_init() 初始化该库：移植完成后，可在应用层调用，如在 main 函数中调用。
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| len    | 分区表的长度 |
-| return | 分区表   |
+![fal 移植](docs/figures/fal-port.png)
 
-### 3.2.4 临时设置分区表
+### 2.1、定义 flash 设备
 
-FAL 初始化时会自动装载默认分区表。使用该设置将临时修改分区表，重启后会 **丢失** 该设置
+在定义 Flash 设备表前，需要先定义 Flash 设备。可以是片内 flash,  也可以是片外基于 SFUD 的 spi flash：
 
-`void fal_set_partition_table_temp(struct fal_partition *table, size_t len)`
+- 定义片内 flash 设备可以参考 [`fal_flash_sfud_port.c`](https://github.com/RT-Thread-packages/fal/blob/master/samples/porting/fal_flash_sfud_port.c) 。
+- 定义片外 spi flash 设备可以参考 [`fal_flash_stm32f2_port.c`](https://github.com/RT-Thread-packages/fal/blob/master/samples/porting/fal_flash_stm32f2_port.c) 。
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| table  | 分区表 |
-| len    | 分区表的长度 |
+定义具体的 Flash 设备对象，用户需要根据自己的 Flash 情况分别实现 `init`、 `read`、 `write`、 `erase` 这些操作函数：
 
-### 3.2.5 从分区读取数据
+- `static int init(void)`：**可选** 的初始化操作。
+- `static int read(long offset, uint8_t *buf, size_t size)`：读取操作。
 
-`int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t *buf, size_t size)`
+| 参数   | 描述                      |
+| ------ | ------------------------- |
+| offset | 读取数据的 Flash 偏移地址 |
+| buf    | 存放待读取数据的缓冲区    |
+| size   | 待读取数据的大小          |
+| return | 返回实际读取的数据大小    |
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| part   | 分区对象 |
-| addr   | 相对分区的偏移地址 |
-| buf    | 存放待读取数据的缓冲区 |
-| size   | 待读取数据的大小 |
-| return | 返回实际读取的数据大小   |
+- `static int write(long offset, const uint8_t *buf, size_t size)` ：写入操作。
 
-### 3.2.6 往分区写入数据
+| 参数   | 描述                      |
+| ------ | ------------------------- |
+| offset | 写入数据的 Flash 偏移地址 |
+| buf    | 存放待写入数据的缓冲区    |
+| size   | 待写入数据的大小          |
+| return | 返回实际写入的数据大小    |
 
-`int fal_partition_write(const struct fal_partition *part, uint32_t addr, const uint8_t *buf, size_t size)`
+- `static int erase(long offset, size_t size)` ：擦除操作。
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| part   | 分区对象 |
-| addr   | 相对分区的偏移地址 |
-| buf    | 存放待写入数据的缓冲区 |
-| size   | 待写入数据的大小 |
-| return | 返回实际写入的数据大小   |
+| 参数   | 描述                      |
+| ------ | ------------------------- |
+| offset | 擦除区域的 Flash 偏移地址 |
+| size   | 擦除区域的大小            |
+| return | 返回实际擦除的区域大小    |
 
-### 3.2.7 擦除分区数据
+用户需要根据自己的 Flash 情况分别实现这些操作函数。在文件最底部定义了具体的 Flash 设备对象 ，如下示例定义了 stm32f2 片上 flash：stm32f2_onchip_flash
 
-`int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t size)`
+```c
+const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 1024*1024, 128*1024, {init, read, write, erase} };
+```
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| part   | 分区对象 |
-| addr   | 相对分区的偏移地址 |
-| size   | 擦除区域的大小 |
-| return | 返回实际擦除的区域大小   |
+- `"stm32_onchip"` : Flash 设备的名字。
+- `0x08000000`: 对 Flash 操作的起始地址。
+- `1024*1024`：Flash 的总大小（1MB）。
+- `128*1024`：Flash 块/扇区大小（因为 STM32F2 各块大小不均匀，所以擦除粒度为最大块的大小：128K）。
+- `{init, read, write, erase}` ：Flash 的操作函数。 如果没有 init 初始化过程，第一个操作函数位置可以置空。
 
-### 3.2.8 擦除整个分区数据
+### 2.2、定义 flash 设备表
 
-`int fal_partition_erase_all(const struct fal_partition *part)`
+Flash 设备表定义在 `fal_cfg.h` 头文件中，定义分区表前需 **新建 `fal_cfg.h` 文件** ，请将该文件统一放在对应 BSP 或工程目录的 port 文件夹下，并将该头文件路径加入到工程。fal_cfg.h 可以参考 [示例文件 fal/samples/porting/fal_cfg.h](https://github.com/RT-Thread-packages/fal/blob/master/samples/porting/samples/porting/fal_cfg.h) 完成。
 
-| 参数    | 描述                      |
-| :----- | :----------------------- |
-| part   | 分区对象 |
-| return | 返回实际擦除的区域大小   |
+设备表示例：
 
-### 3.2.9 打印分区表
+```c
+/* ===================== Flash device Configuration ========================= */
+extern const struct fal_flash_dev stm32f2_onchip_flash;
+extern struct fal_flash_dev nor_flash0;
 
-`void fal_show_part_table(void)`
+/* flash device table */
+#define FAL_FLASH_DEV_TABLE                                          \
+{                                                                    \
+    &stm32f2_onchip_flash,                                           \
+    &nor_flash0,                                                     \
+}
+```
 
-### 3.2.10 根据分区名称，创建对应的块设备
+Flash 设备表中，有两个 Flash 对象，一个为 STM32F2 的片内 Flash ，一个为片外的 Nor Flash。
 
-该函数可以根据指定的分区名称，创建对应的块设备，以便于在指定的分区上挂载文件系统
+### 2.3、定义 flash 分区表
 
-`struct rt_device *fal_blk_device_create(const char *parition_name)`
+分区表也定义在 `fal_cfg.h` 头文件中。Flash 分区基于 Flash 设备，每个 Flash 设备又可以有 N 个分区，这些分区的集合就是分区表。在配置分区表前，务必保证已定义好 **Flash 设备** 及 **设备表**。fal_cfg.h 可以参考 [示例文件 fal/samples/porting/fal_cfg.h](https://github.com/RT-Thread-packages/fal/blob/master/samples/porting/samples/porting/fal_cfg.h) 完成。
 
-| 参数           | 描述                      |
-| :-----        | :-----------------------  |
-| parition_name | 分区名称 |
-| return        | 创建成功，则返回对应的块设备，失败返回空   |
+分区表示例：
 
-### 3.2.11 根据分区名称，创建对应的 MTD Nor Flash 设备
+```c
+#define NOR_FLASH_DEV_NAME             "norflash0"
+/* ====================== Partition Configuration ========================== */
+#ifdef FAL_PART_HAS_TABLE_CFG
+/* partition table */
+#define FAL_PART_TABLE                                                               \
+{                                                                                    \
+    {FAL_PART_MAGIC_WORD,        "bl",     "stm32_onchip",         0,   64*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,       "app",     "stm32_onchip",   64*1024,  704*1024, 0}, \
+    {FAL_PART_MAGIC_WORD, "easyflash", NOR_FLASH_DEV_NAME,         0, 1024*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,  "download", NOR_FLASH_DEV_NAME, 1024*1024, 1024*1024, 0}, \
+}
+#endif /* FAL_PART_HAS_TABLE_CFG */
+```
 
-该函数可以根据指定的分区名称，创建对应的 MTD Nor Flash 设备，以便于在指定的分区上挂载文件系统
+上面这个分区表详细描述信息如下：
 
-`struct rt_device *fal_mtd_nor_device_create(const char *parition_name)`
+| 分区名      | Flash 设备名   | 偏移地址  | 大小  | 说明               |
+| ----------- | -------------- | --------- | ----- | ------------------ |
+| "bl"        | "stm32_onchip" | 0         | 64KB  | 引导程序           |
+| "app"       | "stm32_onchip" | 64*1024   | 704KB | 应用程序           |
+| "easyflash" | "norflash0"    | 0         | 1MB   | EasyFlash 参数存储 |
+| "download"  | "norflash0"    | 1024*1024 | 1MB   | OTA 下载区         |
 
-| 参数          | 描述                                                  |
-| :------------ | :---------------------------------------------------- |
-| parition_name | 分区名称                                              |
-| return        | 创建成功，则返回对应的 MTD Nor Flash 设备，失败返回空 |
+用户需要修改的分区参数包括：分区名称、关联的 Flash 设备名、偏移地址（相对 Flash 设备内部）、大小，需要注意以下几点：
 
-### 3.2.12 根据分区名称，创建对应的字符设备
+- 分区名保证 **不能重复**；
+- 关联的 Flash 设备 **务必已经在 Flash 设备表中定义好** ，并且 **名称一致** ，否则会出现无法找到 Flash 设备的错误；
+- 分区的起始地址和大小 **不能超过 Flash 设备的地址范围** ，否则会导致包初始化错误；
 
-该函数可以根据指定的分区名称，创建对应的字符设备，以便于通过 deivice 接口或 devfs 接口操作分区，开启了 POSIX 后，还可以通过 oepn/read/write 函数操作分区。
+> 注意：每个分区定义时，除了填写上面介绍的参数属性外，需在前面增加 `FAL_PART_MAGIC_WORD` 属性，末尾增加 `0` （目前用于保留功能）
 
-`struct rt_device *fal_char_device_create(const char *parition_name)`
-
-| 参数          | 描述                                       |
-| :------------ | :----------------------------------------- |
-| parition_name | 分区名称                                   |
-| return        | 创建成功，则返回对应的字符设备，失败返回空 |
-
-## 3.3 Finsh/MSH 测试命令
+## 3、Finsh/MSH 测试命令
 
 fal 提供了丰富的测试命令，项目只要在 RT-Thread 上开启 Finsh/MSH 功能即可。在做一些基于 Flash 的应用开发、调试时，这些命令会非常实用。它可以准确的写入或者读取指定位置的原始 Flash 数据，快速的验证 Flash 驱动的完整性，甚至可以对 Flash 进行性能测试。
 
@@ -209,7 +199,7 @@ fal bench <blk_size>             - benchmark test with per block size
 msh />
 ```
 
-### 3.3.1 指定待操作的 Flash 设备或 Flash 分区
+### 3.1、指定待操作的 Flash 设备或 Flash 分区
 
 当第一次使用 fal 命令时，直接输入 `fal probe`  将会显示分区表信息。可以指定待操作的对象为分区表里的某个分区，或者某个 Flash 设备。
 
@@ -233,7 +223,7 @@ Probed a flash partition | download | flash_dev: norflash0 | offset: 1048576 | l
 msh />
 ```
 
-### 3.3.2 擦除数据
+### 3.2、擦除数据
 
 先输入 `fal erase` ，后面跟着待擦除数据的起始地址以及长度。以下命令为：从 0 地址（相对 Flash 或分区）开始擦除 4096 字节数据
 
@@ -245,7 +235,7 @@ Erase data success. Start from 0x00000000, size is 4096.
 msh />
 ```
 
-### 3.3.3 写入数据
+### 3.3、写入数据
 
 先输入 `fal write` ，后面跟着 N 个待写入的数据，并以空格隔开。以下命令为：从地址 8 的位置依次开始写入 1、2、3、4 、 5 这 5 个字节数据
 
@@ -256,7 +246,7 @@ Write data: 1 2 3 4 5 .
 msh />
 ```
 
-### 3.3.4 读取数据
+### 3.4、读取数据
 
 先输入 `fal read` ，后面跟着待读取数据的起始地址以及长度。以下命令为：从 0 地址开始读取 64 字节数据
 
@@ -272,7 +262,7 @@ Offset (h) 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 msh />
 ```
 
-### 3.3.5 性能测试
+### 3.5、性能测试
 
 性能测试将会测试 Flash 的擦除、写入及读取速度，同时将会测试写入及读取数据的准确性，保证整个 Flash 或整个分区的 写入与读取 数据的一致性。
 
@@ -289,13 +279,19 @@ Read benchmark success, total time: 2.716S.
 msh />
 ```
 
-## 4、常见问题
+## 4、常见应用
 
-### 使用时，无法找到 `fal_cfg.h` 头文件
+- [基于 FAL 分区的 fatfs 文件系统例程](https://github.com/RT-Thread/IoT_Board/tree/master/examples/15_component_fs_flash)
+- [基于 FAL 分区的 littlefs 文件系统应用笔记](https://www.rt-thread.org/document/site/application-note/components/dfs/an0027-littlefs/)
+- [基于 FAL 分区的 EasyFlash 移植说明](https://github.com/armink-rtt-pkgs/EasyFlash/tree/master/ports)
 
-`fal_cfg.h` 为 fal 软件包的配置文件，需要用户手动新建，并定义相关的分区表信息，详见： [移植文档 /samples/porting/README.md](samples/porting/README.md)
+## 5、常见问题
 
-## 5、联系方式
+**1、使用 FAL 时，无法找到 `fal_cfg.h` 头文件**
+
+`fal_cfg.h` 为 fal 软件包的配置文件，需要用户手动新建，并定义相关的分区表信息。请将该文件统一放在 BSP 的 port 文件夹下或工程目录的 port 文件夹下（若没有则新建 port 文件夹），并将该头文件路径加入到工程，详见 "`2.2、定义 flash 设备表`" 小节。
+
+## 6、联系方式
 
 * 维护：[armink](https://github.com/armink)
 * 主页：https://github.com/RT-Thread-packages/fal
