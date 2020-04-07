@@ -120,7 +120,11 @@ const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 
 - `0x08000000`: 对 Flash 操作的起始地址。
 - `1024*1024`：Flash 的总大小（1MB）。
 - `128*1024`：Flash 块/扇区大小（因为 STM32F2 各块大小不均匀，所以擦除粒度为最大块的大小：128K）。
-- `1` : 设置写粒度，单位 bit，0 表示未生效。各个 flash 写入粒度不尽相同，可通过该成员设置写粒度。是 fal 版本大于 4.0 后的新增成员。
+- `1` : 设置写粒度，单位 bit，0 表示未生效，该成员是 fal 版本大于 4.0 后的新增成员。各个 flash 写入粒度不尽相同，可通过该成员进行设置，以下列举几种常见 Flash 写粒度：
+  - nor flash: 1 bit
+  - stm32f4:  8 bit
+  - stm32f1:  32 bit
+  - stm32l4:  64 bit
 - `{init, read, write, erase}` ：Flash 的操作函数。 如果没有 init 初始化过程，第一个操作函数位置可以置空。
 
 ### 2.2、定义 flash 设备表
