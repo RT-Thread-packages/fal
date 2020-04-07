@@ -39,7 +39,8 @@ struct flash_partition
 typedef struct flash_partition *flash_partition_t;
 static struct flash_partition *flash_partition_table = NULL;
 
-int flash_partition_table_mnt( struct fal_partition *table, size_t len);
+int flash_partition_table_mnt(void *table, size_t len);
+
 /**
  * FAL partition table config has defined on 'fal_cfg.h'.
  * When this option is disable, it will auto find the partition table on a specified location in flash partition.
@@ -269,7 +270,7 @@ int fal_partition_init(void)
     }
 #endif /* FAL_PART_HAS_TABLE_CFG */
 
-    flash_partition_table_mnt(partition_table, partition_table_len);
+    flash_partition_table_mnt((void *)partition_table, partition_table_len);
 
     /* check the partition table device exists */
 
@@ -357,10 +358,10 @@ const struct fal_partition *fal_get_partition_table(size_t *len)
  * @param table partition table
  * @param len partition table length
  */
-int flash_partition_table_mnt(struct fal_partition *table, size_t len)
+int flash_partition_table_mnt(void *table, size_t len)
 {
     int i = 0;
-    struct fal_flash_dev *flash_dev = NULL;
+    const struct fal_flash_dev *flash_dev = NULL;
     
     partition_table = table;
     partition_table_len = len;
@@ -408,7 +409,6 @@ int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t 
 {
     int ret = 0;
     int offset = 0;
-    const struct fal_flash_dev *flash_dev = NULL;
 
     assert(part);
     assert(buf);
@@ -445,7 +445,6 @@ int fal_partition_write(const struct fal_partition *part, uint32_t addr, const u
 {
     int ret = 0;
     int offset = 0;
-    const struct fal_flash_dev *flash_dev = NULL;
 
     assert(part);
     assert(buf);
@@ -481,7 +480,6 @@ int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t 
 {
     int ret = 0;
     int offset = 0;
-    const struct fal_flash_dev *flash_dev = NULL;
 
     assert(part);
 
@@ -495,7 +493,7 @@ int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t 
     ret = flash_partition_table[offset].flash_dev->ops.erase(part->offset + addr, size);
     if (ret == NULL)
     {
-        log_e("Partition write error!");
+        log_e("Partition erase error!");
         return -1;
     }
 

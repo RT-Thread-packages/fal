@@ -200,8 +200,5 @@ static int erase(long offset, size_t size)
     return size;
 }
 
-#if (PKG_FAL_VER_NUM > 0x00400)
 const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 1024*1024, 128*1024, 1, {init, read, write, erase} };
-#else
-const struct fal_flash_dev stm32f2_onchip_flash = { "stm32_onchip", 0x08000000, 1024*1024, 128*1024, {init, read, write, erase} };
-#endif
+
