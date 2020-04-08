@@ -40,7 +40,15 @@ static int write(long offset, const uint8_t *buf, size_t size);
 static int erase(long offset, size_t size);
 
 static sfud_flash_t sfud_dev = NULL;
-struct fal_flash_dev nor_flash0 = {FAL_USING_NOR_FLASH_DEV_NAME, 0, 8 * 1024 * 1024, 4096, {init, read, write, erase}};
+struct fal_flash_dev nor_flash0 =
+{
+    .name       = FAL_USING_NOR_FLASH_DEV_NAME,
+    .addr       = 0,
+    .len        = 8 * 1024 * 1024,
+    .blk_size   = 4096,
+    .ops        = {init, read, write, erase},
+    .write_gran = 1
+};
 
 static int init(void)
 {

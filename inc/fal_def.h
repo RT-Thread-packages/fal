@@ -125,6 +125,11 @@ struct fal_flash_dev
         int (*write)(long offset, const uint8_t *buf, size_t size);
         int (*erase)(long offset, size_t size);
     } ops;
+
+    /* write minimum granularity, unit: bit. 
+       1(nor flash)/ 8(stm32f4)/ 32(stm32f1)/ 64(stm32l4)
+       0 will not take effect. */
+    size_t write_gran;
 };
 typedef struct fal_flash_dev *fal_flash_dev_t;
 
