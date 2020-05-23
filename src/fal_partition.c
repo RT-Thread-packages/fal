@@ -65,7 +65,7 @@ static struct part_flash_info part_flash_cache[sizeof(partition_table_def) / siz
 #endif
 
 static struct fal_partition *partition_table = NULL;
-static struct part_flash_info *part_flash_cache;
+static struct part_flash_info *part_flash_cache = NULL;
 #endif /* FAL_PART_HAS_TABLE_CFG */
 
 static uint8_t init_ok = 0;
@@ -114,10 +114,23 @@ void fal_show_part_table(void)
     log_i("=============================================================");
 }
 
-static int check_and_update_part_table(const struct fal_partition *table, size_t len)
+static int check_and_update_part_cache(const struct fal_partition *table, size_t len)
 {
     const struct fal_flash_dev *flash_dev = NULL;
     size_t i;
+
+#ifndef FAL_PART_HAS_TABLE_CFG
+    if (part_flash_cache)
+    {
+        FAL_FREE(part_flash_cache);
+    }
+    part_flash_cache = FAL_MALLOC(len * sizeof(struct part_flash_info));
+    if (part_flash_cache == NULL)
+    {
+        log_e("Initialize failed! No memory for partition table cache");
+        return -2;
+    }
+#endif
 
     for (i = 0; i < len; i++)
     {
@@ -284,17 +297,11 @@ int fal_partition_init(void)
     else
     {
         partition_table_len = table_num;
-        part_flash_cache = FAL_MALLOC(partition_table_len * sizeof(struct part_flash_info));
-        if (part_flash_cache == NULL)
-        {
-            log_e("Initialize failed! No memory for partition table cache");
-            goto _exit;
-        }
     }
 #endif /* FAL_PART_HAS_TABLE_CFG */
 
     /* check the partition table device exists */
-    if (check_and_update_part_table(partition_table, partition_table_len) != 0)
+    if (check_and_update_part_cache(partition_table, partition_table_len) != 0)
     {
         goto _exit;
     }
@@ -348,7 +355,6 @@ static const struct fal_flash_dev *flash_device_find_by_part(const struct fal_pa
     assert(part <= &partition_table[partition_table_len - 1]);
 
     return part_flash_cache[part - partition_table].flash_dev;
-
 }
 
 /**
@@ -380,7 +386,7 @@ void fal_set_partition_table_temp(struct fal_partition *table, size_t len)
     assert(init_ok);
     assert(table);
 
-    check_and_update_part_table(table, len);
+    check_and_update_part_cache(table, len);
 
     partition_table_len = len;
     partition_table = table;
