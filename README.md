@@ -56,7 +56,7 @@ FAL 相关的 API 如图所示，[点击此处查看 API 参数详解](docs/fal_
 
 ### 1.4、许可证
 
-fal package 遵循 LGPLv2.1 许可，详见 `LICENSE` 文件。
+fal package 遵循 Apache-2.0 许可，详见 `LICENSE` 文件。
 
 ### 1.5、依赖
 
