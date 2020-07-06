@@ -780,12 +780,14 @@ static void fal(uint8_t argc, char **argv) {
                 }
                 /* full chip benchmark test */
                 uint32_t start_time, time_cast;
-                size_t write_size = strtol(argv[2], NULL, 0), read_size = strtol(argv[2], NULL, 0), cur_read_size;
+                size_t write_size = strtol(argv[2], NULL, 0), read_size = strtol(argv[2], NULL, 0), cur_op_size;
                 uint8_t *write_data = (uint8_t *)rt_malloc(write_size), *read_data = (uint8_t *)rt_malloc(read_size);
 
                 if (write_data && read_data)
                 {
-                    memset(write_data, 0x55, write_size);
+                    for (i = 0; i < write_size; i ++) {
+                        write_data[i] = i & 0xFF;
+                    }
                     if (flash_dev)
                     {
                         size = flash_dev->len;
@@ -820,13 +822,21 @@ static void fal(uint8_t argc, char **argv) {
                     start_time = rt_tick_get();
                     for (i = 0; i < size; i += write_size)
                     {
+                        if (i + write_size <= size)
+                        {
+                            cur_op_size = write_size;
+                        }
+                        else
+                        {
+                            cur_op_size = size - i;
+                        }
                         if (flash_dev)
                         {
-                            result = flash_dev->ops.write(i, write_data, write_size);
+                            result = flash_dev->ops.write(i, write_data, cur_op_size);
                         }
                         else if (part_dev)
                         {
-                            result = fal_partition_write(part_dev, i, write_data, write_size);
+                            result = fal_partition_write(part_dev, i, write_data, cur_op_size);
                         }
                         if (result < 0)
                         {
@@ -850,22 +860,30 @@ static void fal(uint8_t argc, char **argv) {
                     {
                         if (i + read_size <= size)
                         {
-                            cur_read_size = read_size;
+                            cur_op_size = read_size;
                         }
                         else
                         {
-                            cur_read_size = size - i;
+                            cur_op_size = size - i;
                         }
                         if (flash_dev)
                         {
-                            result = flash_dev->ops.read(i, read_data, cur_read_size);
+                            result = flash_dev->ops.read(i, read_data, cur_op_size);
                         }
                         else if (part_dev)
                         {
-                            result = fal_partition_read(part_dev, i, read_data, cur_read_size);
+                            result = fal_partition_read(part_dev, i, read_data, cur_op_size);
                         }
                         /* data check */
-                        if (memcmp(write_data, read_data, cur_read_size))
+                        for (int index = 0; index < cur_op_size; index ++)
+                        {
+                            if (write_data[index] != read_data[index])
+                            {
+                                rt_kprintf("%d %d %02x %02x.\n", i, index, write_data[index], read_data[index]);
+                            }
+                        }
+
+                        if (memcmp(write_data, read_data, cur_op_size))
                         {
                             result = -RT_ERROR;
                             rt_kprintf("Data check ERROR! Please check you flash by other command.\n");
