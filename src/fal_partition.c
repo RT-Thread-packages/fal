@@ -411,7 +411,7 @@ int fal_partition_read(const struct fal_partition *part, uint32_t addr, uint8_t 
     assert(part);
     assert(buf);
 
-    if (addr + size > part->len)
+    if (addr >= part->len || part->len - addr < size)
     {
         log_e("Partition read error! Partition address out of bound.");
         return -1;
@@ -452,7 +452,7 @@ int fal_partition_write(const struct fal_partition *part, uint32_t addr, const u
     assert(part);
     assert(buf);
 
-    if (addr + size > part->len)
+    if (addr >= part->len || part->len - addr < size)
     {
         log_e("Partition write error! Partition address out of bound.");
         return -1;
@@ -491,7 +491,7 @@ int fal_partition_erase(const struct fal_partition *part, uint32_t addr, size_t 
 
     assert(part);
 
-    if (addr + size > part->len)
+    if (addr >= part->len || part->len - addr < size)
     {
         log_e("Partition erase error! Partition address out of bound.");
         return -1;
