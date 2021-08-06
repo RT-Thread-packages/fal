@@ -56,7 +56,7 @@ INIT_ENV_EXPORT(fal_init);
 
 /**
  * Check if the FAL is initialized successfully
- * 
+ *
  * @return 0: not init or init failed; 1: init success
  */
 int fal_init_check(void)
