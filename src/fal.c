@@ -50,6 +50,9 @@ __exit:
 
     return result;
 }
+#if defined(__RTTHREAD__) && defined(FAL_USING_AUTO_INIT)
+INIT_ENV_EXPORT(fal_init);
+#endif
 
 /**
  * Check if the FAL is initialized successfully
