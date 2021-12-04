@@ -16,6 +16,15 @@
 
 #define FAL_SW_VERSION                 "0.5.99"
 
+#ifdef __RTTHREAD__ /* for RT-Thread platform */
+#include <rtthread.h>
+#define FAL_PRINTF      rt_kprintf
+#define FAL_MALLOC      rt_malloc
+#define FAL_CALLOC      rt_calloc
+#define FAL_REALLOC     rt_realloc
+#define FAL_FREE        rt_free
+#endif
+
 #ifndef FAL_MALLOC
 #define FAL_MALLOC                     malloc
 #endif
@@ -32,19 +41,13 @@
 #define FAL_FREE                       free
 #endif
 
+#ifndef FAL_PRINTF
+#define FAL_PRINTF                     printf
+#endif
+
 #ifndef FAL_DEBUG
 #define FAL_DEBUG                      0
 #endif
-
-#ifndef FAL_PRINTF
-#ifdef RT_VER_NUM
-/* for RT-Thread platform */
-extern void rt_kprintf(const char *fmt, ...);
-#define FAL_PRINTF rt_kprintf
-#else
-#define FAL_PRINTF printf
-#endif /* RT_VER_NUM */
-#endif /* FAL_PRINTF */
 
 #if FAL_DEBUG
 #ifdef assert
