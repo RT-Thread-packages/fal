@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define FAL_SW_VERSION                 "0.5.99"
+#define FAL_SW_VERSION                 "1.0.0"
 
 #ifdef __RTTHREAD__ /* for RT-Thread platform */
 #include <rtthread.h>
