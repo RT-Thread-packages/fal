@@ -2,6 +2,10 @@
 
 中文页 | [英文页](./README.md)
 
+### 从RT-Thread v4.1.0版本开始，FAL作为内部组件移到了系统内部，请移至：https://github.com/RT-Thread/rt-thread/tree/master/components/fal
+
+**此存储库不再维护。**
+
 ## 1、FAL介绍
 
 FAL (Flash Abstraction Layer) Flash 抽象层，是对 Flash 及基于 Flash 的分区进行管理、操作的抽象层，对上层统一了 Flash 及 分区操作的 API (框架图如下所示)，并具有以下特性：
